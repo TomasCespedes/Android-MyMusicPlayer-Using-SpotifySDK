@@ -11,6 +11,9 @@ import com.spotify.protocol.types.Track;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.widget.ImageButton;
+import android.widget.ScrollView;
+import android.widget.TextView;
 
 /**
  * Source to set up the code to connect to Spotify
@@ -24,6 +27,9 @@ public class MainActivity extends AppCompatActivity {
     private SpotifyAppRemote mSpotifyAppRemote;
     private MyBroadcastReceiver myBroadcastReceiver;
 
+    TextView currentsong;
+    ImageButton currentbutton;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -34,6 +40,9 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onStart() {
         super.onStart();
+
+        currentsong = findViewById(R.id.current_song);
+        currentbutton = findViewById(R.id.current_button);
 
         // Set the connection parameters
         ConnectionParams connectionParams =
@@ -68,6 +77,7 @@ public class MainActivity extends AppCompatActivity {
         // Play a playlist
         mSpotifyAppRemote.getPlayerApi().play("spotify:user:spotify:playlist:37i9dQZF1DX2sUQwD7tbmL");
 
+
         // Subscribe to PlayerState
         mSpotifyAppRemote.getPlayerApi()
                 .subscribeToPlayerState()
@@ -76,7 +86,7 @@ public class MainActivity extends AppCompatActivity {
                     public void onEvent(PlayerState playerState) {
                         final Track track = playerState.track;
                         if (track != null) {
-                            Log.d("yay", track.name + " by " + track.artist.name);
+                            currentsong.setText((track.name + " by " + track.artist.name));
                         }
                     }
                 });
