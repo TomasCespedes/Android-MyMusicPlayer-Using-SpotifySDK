@@ -12,11 +12,17 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 
+/**
+ * Source to set up the code to connect to Spotify
+ * https://developer.spotify.com/documentation/android/quick-start/#next-steps
+ */
+
 public class MainActivity extends AppCompatActivity {
 
     private static final String CLIENT_ID = "377538ebcf9e4cdb9c4b5373e62a53a3";
     private static final String REDIRECT_URI = "FinalProjectCS450://callback";
     private SpotifyAppRemote mSpotifyAppRemote;
+    private MyBroadcastReceiver myBroadcastReceiver;
 
 
     @Override
@@ -62,6 +68,18 @@ public class MainActivity extends AppCompatActivity {
         // Play a playlist
         mSpotifyAppRemote.getPlayerApi().play("spotify:user:spotify:playlist:37i9dQZF1DX2sUQwD7tbmL");
 
+        // Subscribe to PlayerState
+        mSpotifyAppRemote.getPlayerApi()
+                .subscribeToPlayerState()
+                .setEventCallback(new Subscription.EventCallback<PlayerState>() {
+
+                    public void onEvent(PlayerState playerState) {
+                        final Track track = playerState.track;
+                        if (track != null) {
+                            Log.d("yay", track.name + " by " + track.artist.name);
+                        }
+                    }
+                });
     }
 
     @Override
