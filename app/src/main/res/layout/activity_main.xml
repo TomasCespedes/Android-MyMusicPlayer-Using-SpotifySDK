@@ -6,13 +6,27 @@
     android:layout_height="match_parent"
     tools:context=".MainActivity">
 
+    <!--Image uri -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:gravity="center"
+        android:orientation="vertical">
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/song_iv"/>
+
+    </LinearLayout>
+
     <!--Scroll view for Current Song -->
     <HorizontalScrollView
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom|start"
-        android:paddingRight="90dp"
+        android:paddingRight="65dp"
         android:background="#e5e1de"
+        android:id="@+id/mysc"
         >
 
         <TextView

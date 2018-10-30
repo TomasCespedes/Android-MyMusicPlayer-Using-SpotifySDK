@@ -4,14 +4,19 @@ import com.spotify.android.appremote.api.Connector;
 import com.spotify.android.appremote.api.SpotifyAppRemote;
 
 import com.spotify.protocol.client.Subscription;
+import com.spotify.protocol.types.ImageUri;
 import com.spotify.protocol.types.PlayerState;
 import com.spotify.protocol.types.Track;
+import com.spotify.protocol.types.Uri;
 
 
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
+import android.widget.HorizontalScrollView;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.ScrollView;
 import android.widget.TextView;
 
@@ -27,8 +32,18 @@ public class MainActivity extends AppCompatActivity {
     private SpotifyAppRemote mSpotifyAppRemote;
     private MyBroadcastReceiver myBroadcastReceiver;
 
-    TextView currentsong;
-    ImageButton currentbutton;
+    // TextViews
+    private TextView currentsong;
+
+    // Buttons
+    private ImageButton currentbutton;
+    private String currenttracker = "play";
+
+    // ScrollView
+    private HorizontalScrollView myscrollview;
+
+    // ImageViews
+    private ImageView song_iv;
 
 
     @Override
@@ -43,6 +58,9 @@ public class MainActivity extends AppCompatActivity {
 
         currentsong = findViewById(R.id.current_song);
         currentbutton = findViewById(R.id.current_button);
+
+        song_iv = findViewById(R.id.song_iv);
+
 
         // Set the connection parameters
         ConnectionParams connectionParams =
@@ -83,13 +101,34 @@ public class MainActivity extends AppCompatActivity {
                 .subscribeToPlayerState()
                 .setEventCallback(new Subscription.EventCallback<PlayerState>() {
 
+                    // If a song is playing get the track name and artist name
                     public void onEvent(PlayerState playerState) {
                         final Track track = playerState.track;
                         if (track != null) {
                             currentsong.setText((track.name + " by " + track.artist.name));
+//                            song_iv.setImageURI((ImageUri)track.imageUri);
+//                            Log.e("album", track.album.name);
+
                         }
                     }
                 });
+
+        currentbutton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (currenttracker == "play") {
+                    currentbutton.setImageResource(R.drawable.playbutton);
+                    currenttracker = "pause";
+                    mSpotifyAppRemote.getPlayerApi().pause();
+                }
+                else if (currenttracker == "pause") {
+                    currentbutton.setImageResource(R.drawable.pausebutton);
+                    currenttracker = "play";
+                    mSpotifyAppRemote.getPlayerApi().resume();
+
+                }
+            }
+        });
     }
 
     @Override
