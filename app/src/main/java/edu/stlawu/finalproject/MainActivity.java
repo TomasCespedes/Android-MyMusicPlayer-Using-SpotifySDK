@@ -59,10 +59,6 @@ public class MainActivity extends AppCompatActivity {
     private ImageButton currentbutton;
     private String currenttracker = "play";
 
-
-    // ScrollView
-    private HorizontalScrollView myscrollview;
-
     // ImageViews
     private ImageView song_iv;
 
@@ -71,6 +67,8 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        currentsong = findViewById(R.id.current_song);
+        currentsong.setSelected(true);
     }
 
     @Override

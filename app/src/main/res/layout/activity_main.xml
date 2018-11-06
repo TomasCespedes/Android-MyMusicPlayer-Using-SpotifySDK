@@ -23,25 +23,20 @@
     </LinearLayout>
 
     <!--Scroll view for Current Song -->
-    <HorizontalScrollView
-        android:layout_width="match_parent"
+    <TextView
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_gravity="bottom|start"
-        android:paddingRight="65dp"
-        android:background="#e5e1de"
-        android:id="@+id/mysc"
-        android:paddingBottom="60dp"
-        >
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:id="@+id/current_song"
-            android:text="@string/no_song_playing"
-            android:textSize="50sp"
-
+        android:layout_gravity="start|center_horizontal"
+        android:id="@+id/current_song"
+        android:text="@string/no_song_playing"
+        android:textSize="50sp"
+        android:focusable="true"
+        android:focusableInTouchMode="true"
+        android:singleLine="true"
+        android:scrollHorizontally="true"
+        android:ellipsize="marquee"
+        android:marqueeRepeatLimit="marquee_forever"
         />
-    </HorizontalScrollView>
 
     <!--Play button -->
     <ImageButton
