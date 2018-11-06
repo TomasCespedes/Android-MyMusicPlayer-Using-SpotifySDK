@@ -15,28 +15,42 @@
 
         <ImageView
             android:id="@+id/song_iv"
-            android:layout_width="200dp"
-            android:layout_height="200dp"
+            android:layout_width="300dp"
+            android:layout_height="300dp"
             android:layout_gravity="center"
-            android:background="@color/colorAccent"/>
+            />
 
     </LinearLayout>
 
     <!--Scroll view for Current Song -->
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="start|center_horizontal"
-        android:id="@+id/current_song"
-        android:text="@string/no_song_playing"
-        android:textSize="50sp"
-        android:focusable="true"
-        android:focusableInTouchMode="true"
-        android:singleLine="true"
-        android:scrollHorizontally="true"
-        android:ellipsize="marquee"
-        android:marqueeRepeatLimit="marquee_forever"
-        />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:gravity="bottom|start"
+        >
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/current_song"
+            android:text="@string/no_song_playing"
+            android:textSize="50sp"
+            android:background="#e5e1de"
+            android:paddingRight="65dp"
+            android:paddingBottom="60dp"
+
+
+            android:focusable="true"
+            android:focusableInTouchMode="true"
+            android:singleLine="true"
+            android:scrollHorizontally="true"
+            android:ellipsize="marquee"
+            android:marqueeRepeatLimit="marquee_forever"
+
+
+            />
+    </LinearLayout>
+
 
     <!--Play button -->
     <ImageButton
