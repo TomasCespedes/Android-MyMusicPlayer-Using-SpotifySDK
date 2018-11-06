@@ -11,7 +11,8 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:gravity="center"
-        android:orientation="vertical">
+        android:orientation="vertical"
+        android:background="#808080">
 
         <ImageView
             android:id="@+id/song_iv"
@@ -22,22 +23,24 @@
 
     </LinearLayout>
 
-    <!--Scroll view for Current Song -->
+    <!--Linear Layout for Current Song -->
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:gravity="bottom|start"
         >
+        <!-- Current song textView -->
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:id="@+id/current_song"
             android:text="@string/no_song_playing"
             android:textSize="50sp"
-            android:background="#e5e1de"
+            android:textColor="#FFFFFF"
+            android:background="#808080"
             android:paddingRight="65dp"
-            android:paddingBottom="60dp"
+            android:paddingBottom="50dp"
 
 
             android:focusable="true"
@@ -57,14 +60,16 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom|end"
-        android:maxWidth="120dp"
-        android:maxHeight="120dp"
+        android:maxWidth="110dp"
+        android:maxHeight="110dp"
         android:id="@+id/current_button"
         android:src="@drawable/pausebutton"
         android:scaleType="fitCenter"
         android:adjustViewBounds="true"
-        android:paddingBottom="60dp"
-        android:background="#e5e1de"
+        android:paddingBottom="50dp"
+        android:background="#808080"
+
+
 
         tools:ignore="ContentDescription" />
 
@@ -78,25 +83,34 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="Home"/>
+            android:text="Home"
+            android:background="@drawable/my_button_bg"
+            android:textColor="#FFFFFF"/>
 
         <Button
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="Search"/>
+            android:text="Search"
+            android:background="@drawable/my_button_bg"
+            android:textColor="#FFFFFF"/>
 
         <Button
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="Library"/>
+            android:text="Library"
+            android:background="@drawable/my_button_bg"
+            android:textColor="#FFFFFF"/>
 
         <Button
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="Playing"/>
+            android:text="Playing"
+            android:background="@drawable/my_button_bg"
+            android:textColor="#FFFFFF"
+            />
 
 
 
