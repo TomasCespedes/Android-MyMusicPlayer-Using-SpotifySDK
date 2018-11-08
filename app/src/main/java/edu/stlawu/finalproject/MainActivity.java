@@ -26,6 +26,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.Button;
 import android.widget.HorizontalScrollView;
 import android.widget.ImageButton;
 import android.widget.ImageView;
@@ -56,7 +57,10 @@ public class MainActivity extends AppCompatActivity {
     private TextView currentsong;
 
     // Buttons
-    private ImageButton currentbutton;
+    private ImageButton playpausebutton;
+    private Button homebutton, searchbutton, librarybutton, playingbutton;
+
+    // Tracker for song playing status (play or pause)
     private String currenttracker = "play";
 
     // ImageViews
@@ -75,13 +79,48 @@ public class MainActivity extends AppCompatActivity {
     protected void onStart() {
         super.onStart();
 
+        // Find views
         currentsong = findViewById(R.id.current_song);
-        currentbutton = findViewById(R.id.current_button);
-
+        playpausebutton = findViewById(R.id.current_button);
         song_iv = findViewById(R.id.song_iv);
 
-        CallResult callback;
+        // Find all the buttons for the bottom menu
+        homebutton = findViewById(R.id.homebtn);
+        searchbutton = findViewById(R.id.searchbtn);
+        librarybutton = findViewById(R.id.librarybtn);
+        playingbutton = findViewById(R.id.playingbtn);
 
+        // Home button to create a new activity
+        homebutton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivity(new Intent(MainActivity.this, MainActivity.class));
+            }
+        });
+
+        // Search button to create a new activity
+        searchbutton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivity(new Intent(MainActivity.this, SearchActivity.class));
+            }
+        });
+
+        // Libray button to create a new activity
+        librarybutton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivity(new Intent(MainActivity.this, LibraryActivity.class));
+            }
+        });
+
+        // Playing Button to create a new activity
+        playingbutton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivity(new Intent(MainActivity.this, PlayingActivity.class));
+            }
+        });
 
         // Set the connection parameters
         ConnectionParams connectionParams =
@@ -112,9 +151,13 @@ public class MainActivity extends AppCompatActivity {
                 });
     }
 
+    /**
+     * Our app is connected to spotify and streaming
+     * can now happen.
+     */
     private void connected() {
         // Play a playlist
-        mSpotifyAppRemote.getPlayerApi().play("spotify:user:spotify:playlist:37i9dQZF1DX2sUQwD7tbmL");
+        mSpotifyAppRemote.getPlayerApi().play("spotify:track:72ic9IhRix05fIkRzGGMXD");
 
         // Subscribe to PlayerState
         mSpotifyAppRemote.getPlayerApi()
@@ -145,16 +188,22 @@ public class MainActivity extends AppCompatActivity {
                     }
                 });
 
-        currentbutton.setOnClickListener(new View.OnClickListener() {
+        /**
+         * Button to play and pause the song
+         */
+        playpausebutton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+
+                // If song is currently playing, pause it
                 if (currenttracker == "play") {
-                    currentbutton.setImageResource(R.drawable.playbutton);
+                    playpausebutton.setImageResource(R.drawable.playbutton);
                     currenttracker = "pause";
                     mSpotifyAppRemote.getPlayerApi().pause();
                 }
+                // If song is currently paused, play it
                 else if (currenttracker == "pause") {
-                    currentbutton.setImageResource(R.drawable.pausebutton);
+                    playpausebutton.setImageResource(R.drawable.pausebutton);
                     currenttracker = "play";
                     mSpotifyAppRemote.getPlayerApi().resume();
 
