@@ -16,18 +16,20 @@ import com.spotify.android.appremote.api.SpotifyAppRemote;
 
 public class PlayingActivity extends AppCompatActivity {
 
+    /**
+     * Views for bottom button menu
+     */
     // TextViews
     private TextView currentsong;
-
     // Buttons
     private ImageButton playpausebutton;
     private Button homebutton, searchbutton, librarybutton, playingbutton;
-
     // Tracker for song playing status (play or pause)
     private String currenttracker = "play";
-
     // ImageViews
     private ImageView song_iv;
+
+    private SpotifyAppRemote mSpotifyAppRemote;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -55,7 +57,9 @@ public class PlayingActivity extends AppCompatActivity {
         homebutton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                startActivity(new Intent(PlayingActivity.this, MainActivity.class));
+                Intent openMainActivity= new Intent(PlayingActivity.this, MainActivity.class);
+                openMainActivity.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
+                startActivityIfNeeded(openMainActivity, 0);
             }
         });
 
@@ -80,6 +84,29 @@ public class PlayingActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 startActivity(new Intent(PlayingActivity.this, PlayingActivity.class));
+            }
+        });
+
+        /**
+         * Button to play and pause the song
+         */
+        playpausebutton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                // If song is currently playing, pause it
+                if (currenttracker == "play") {
+                    playpausebutton.setImageResource(R.drawable.playbutton);
+                    currenttracker = "pause";
+                    mSpotifyAppRemote.getPlayerApi().pause();
+                }
+                // If song is currently paused, play it
+                else if (currenttracker == "pause") {
+                    playpausebutton.setImageResource(R.drawable.pausebutton);
+                    currenttracker = "play";
+                    mSpotifyAppRemote.getPlayerApi().resume();
+
+                }
             }
         });
     }
