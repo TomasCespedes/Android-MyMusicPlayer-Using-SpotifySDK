@@ -55,8 +55,8 @@ public class MainActivity extends AppCompatActivity {
 
     private static final String CLIENT_ID = "377538ebcf9e4cdb9c4b5373e62a53a3";
     private static final String REDIRECT_URI = "FinalProjectCS450://callback";
-    private SpotifyAppRemote mSpotifyAppRemote;
-
+    public SpotifyAppRemote mSpotifyAppRemote;
+    private Track track;
 
     // TextViews
     private TextView currentsong;
@@ -84,13 +84,21 @@ public class MainActivity extends AppCompatActivity {
     protected void onStart() {
         super.onStart();
 
+        connectToRemote();
+
+
+
+
+    }
+
+    private void connectToRemote() {
         /**
          * Set the connection parameters
          */
         ConnectionParams connectionParams =
                 new ConnectionParams.Builder(CLIENT_ID)
                         .setRedirectUri(REDIRECT_URI)
-                        .showAuthView(true).setPreferredImageSize(200)
+                        .showAuthView(true)
                         .build();
 
         /**
@@ -115,8 +123,6 @@ public class MainActivity extends AppCompatActivity {
                         // Something went wrong when attempting to connect! Handle errors here
                     }
                 });
-
-
     }
 
     /**
@@ -162,7 +168,7 @@ public class MainActivity extends AppCompatActivity {
 
                     // If a song is playing get the track name and artist name
                     public void onEvent(PlayerState playerState) {
-                        final Track track = playerState.track;
+                        track = playerState.track;
                         if (track != null) {
                             /**
                              * Set data to views (track name by track artist)
@@ -220,7 +226,9 @@ public class MainActivity extends AppCompatActivity {
         homebutton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                startActivity(new Intent(MainActivity.this, MainActivity.class));
+                Intent myIntent = new Intent(MainActivity.this, MainActivity.class);
+                myIntent.putExtra("key", track.toString());
+                MainActivity.this.startActivity(myIntent);
             }
         });
 
@@ -230,7 +238,9 @@ public class MainActivity extends AppCompatActivity {
         searchbutton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                startActivity(new Intent(MainActivity.this, SearchActivity.class));
+                Intent myIntent = new Intent(MainActivity.this, SearchActivity.class);
+                myIntent.putExtra("key", track.toString());
+                MainActivity.this.startActivity(myIntent);
             }
         });
 
@@ -240,7 +250,9 @@ public class MainActivity extends AppCompatActivity {
         librarybutton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                startActivity(new Intent(MainActivity.this, LibraryActivity.class));
+                Intent myIntent = new Intent(MainActivity.this, LibraryActivity.class);
+                myIntent.putExtra("key", track.toString());
+                MainActivity.this.startActivity(myIntent);
             }
         });
 
@@ -250,11 +262,17 @@ public class MainActivity extends AppCompatActivity {
         playingbutton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                startActivity(new Intent(MainActivity.this, PlayingActivity.class));
+                Intent myIntent = new Intent(MainActivity.this, PlayingActivity.class);
+                myIntent.putExtra("key", track.toString());
+                MainActivity.this.startActivity(myIntent);
             }
         });
 
 
+    }
+
+    public SpotifyAppRemote getSpotifyRemote() {
+        return mSpotifyAppRemote;
     }
 }
 

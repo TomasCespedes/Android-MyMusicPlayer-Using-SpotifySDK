@@ -57,9 +57,8 @@ public class LibraryActivity extends AppCompatActivity {
         homebutton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent openMainActivity= new Intent(LibraryActivity.this, MainActivity.class);
-                openMainActivity.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
-                startActivityIfNeeded(openMainActivity, 0);
+                Intent myIntent = new Intent(LibraryActivity.this, MainActivity.class);
+                LibraryActivity.this.startActivity(myIntent);
             }
         });
 
@@ -67,7 +66,8 @@ public class LibraryActivity extends AppCompatActivity {
         searchbutton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                startActivity(new Intent(LibraryActivity.this, SearchActivity.class));
+                Intent myIntent = new Intent(LibraryActivity.this, SearchActivity.class);
+                LibraryActivity.this.startActivity(myIntent);
             }
         });
 
@@ -75,7 +75,8 @@ public class LibraryActivity extends AppCompatActivity {
         librarybutton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                startActivity(new Intent(LibraryActivity.this, LibraryActivity.class));
+                Intent myIntent = new Intent(LibraryActivity.this, LibraryActivity.class);
+                LibraryActivity.this.startActivity(myIntent);
             }
         });
 
@@ -83,7 +84,8 @@ public class LibraryActivity extends AppCompatActivity {
         playingbutton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                startActivity(new Intent(LibraryActivity.this, PlayingActivity.class));
+                Intent myIntent = new Intent(LibraryActivity.this, PlayingActivity.class);
+                LibraryActivity.this.startActivity(myIntent);
             }
         });
 
