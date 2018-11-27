@@ -6,8 +6,10 @@ import com.spotify.android.appremote.api.SpotifyAppRemote;
 import com.spotify.protocol.client.CallResult;
 import com.spotify.protocol.client.Result;
 import com.spotify.protocol.client.Subscription;
+import com.spotify.protocol.types.Capabilities;
 import com.spotify.protocol.types.Image;
 import com.spotify.protocol.types.ImageUri;
+import com.spotify.protocol.types.LibraryState;
 import com.spotify.protocol.types.PlayerState;
 import com.spotify.protocol.types.Track;
 import com.spotify.protocol.types.Uri;
@@ -37,7 +39,10 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
+import java.net.Inet4Address;
+import java.net.InetAddress;
 import java.net.URI;
+import java.net.UnknownHostException;
 
 import static android.icu.lang.UCharacter.GraphemeClusterBreak.T;
 
@@ -50,8 +55,8 @@ public class MainActivity extends AppCompatActivity {
 
     private static final String CLIENT_ID = "377538ebcf9e4cdb9c4b5373e62a53a3";
     private static final String REDIRECT_URI = "FinalProjectCS450://callback";
-    private SpotifyAppRemote mSpotifyAppRemote;
-    private MyBroadcastReceiver myBroadcastReceiver;
+    public SpotifyAppRemote mSpotifyAppRemote;
+    private Track track;
 
     // TextViews
     private TextView currentsong;
@@ -71,65 +76,34 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        currentsong = findViewById(R.id.current_song);
-        currentsong.setSelected(true);
+
+        init();
     }
 
     @Override
     protected void onStart() {
         super.onStart();
 
-        // Find views
-        currentsong = findViewById(R.id.current_song);
-        playpausebutton = findViewById(R.id.current_button);
-        song_iv = findViewById(R.id.song_iv);
+        connectToRemote();
 
-        // Find all the buttons for the bottom menu
-        homebutton = findViewById(R.id.homebtn);
-        searchbutton = findViewById(R.id.searchbtn);
-        librarybutton = findViewById(R.id.librarybtn);
-        playingbutton = findViewById(R.id.playingbtn);
 
-        // Home button to create a new activity
-        homebutton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                startActivity(new Intent(MainActivity.this, MainActivity.class));
-            }
-        });
 
-        // Search button to create a new activity
-        searchbutton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                startActivity(new Intent(MainActivity.this, SearchActivity.class));
-            }
-        });
 
-        // Libray button to create a new activity
-        librarybutton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                startActivity(new Intent(MainActivity.this, LibraryActivity.class));
-            }
-        });
+    }
 
-        // Playing Button to create a new activity
-        playingbutton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                startActivity(new Intent(MainActivity.this, PlayingActivity.class));
-            }
-        });
-
-        // Set the connection parameters
+    private void connectToRemote() {
+        /**
+         * Set the connection parameters
+         */
         ConnectionParams connectionParams =
                 new ConnectionParams.Builder(CLIENT_ID)
                         .setRedirectUri(REDIRECT_URI)
-                        .showAuthView(true).setPreferredImageSize(50)
+                        .showAuthView(true)
                         .build();
 
-        // Connect to App Remote
+        /**
+         * Connect app to remote
+         */
         SpotifyAppRemote.connect(this, connectionParams,
                 new Connector.ConnectionListener() {
 
@@ -157,36 +131,9 @@ public class MainActivity extends AppCompatActivity {
      */
     private void connected() {
         // Play a playlist
-        mSpotifyAppRemote.getPlayerApi().play("spotify:track:72ic9IhRix05fIkRzGGMXD");
+        mSpotifyAppRemote.getPlayerApi().play("spotify:track:0VgkVdmE4gld66l8iyGjgx");
 
-        // Subscribe to PlayerState
-        mSpotifyAppRemote.getPlayerApi()
-                .subscribeToPlayerState()
-                .setEventCallback(new Subscription.EventCallback<PlayerState>() {
-
-
-                    // If a song is playing get the track name and artist name
-                    public void onEvent(PlayerState playerState) {
-                        final Track track = playerState.track;
-                        if (track != null) {
-                            currentsong.setText((track.name + " by " + track.artist.name));
-
-                            // Get the image for the track
-
-                            mSpotifyAppRemote.getImagesApi().getImage(track.imageUri)
-                                    .setResultCallback(new CallResult.ResultCallback<Bitmap>() {
-                                        @Override
-                                        public void onResult(Bitmap bitmap) {
-
-                                            //song_iv.setImageBitmap(bitmap);
-
-                                            Drawable d = new BitmapDrawable(getResources(), bitmap);
-                                            song_iv.setImageDrawable(d);
-                                        }
-                                    });
-                        }
-                    }
-                });
+        subscribetoPlayerState();
 
         /**
          * Button to play and pause the song
@@ -212,12 +159,120 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
+    private void subscribetoPlayerState() {
+        // Subscribe to PlayerState
+        mSpotifyAppRemote.getPlayerApi()
+                .subscribeToPlayerState()
+                .setEventCallback(new Subscription.EventCallback<PlayerState>() {
+
+
+                    // If a song is playing get the track name and artist name
+                    public void onEvent(PlayerState playerState) {
+                        track = playerState.track;
+                        if (track != null) {
+                            /**
+                             * Set data to views (track name by track artist)
+                             */
+                            currentsong.setText((track.name + " by " + track.artist.name));
+                            /**
+                             * Get Image for the track
+                             */
+                            mSpotifyAppRemote.getImagesApi().getImage(track.imageUri)
+                                    .setResultCallback(new CallResult.ResultCallback<Bitmap>() {
+                                        @Override
+                                        public void onResult(Bitmap bitmap) {
+                                            Drawable d = new BitmapDrawable(getResources(), bitmap);
+                                            song_iv.setImageDrawable(d);
+                                        }
+                                    });
+                        }
+                    }
+                });
+    }
+
+    /**
+     * When app stops, disconnect app from Spotify
+     */
     @Override
     protected void onStop() {
         super.onStop();
 
         // Disconnect from app
         SpotifyAppRemote.disconnect(mSpotifyAppRemote);
+    }
+
+    private void init() {
+
+        /**
+         * Find views for current song, play/pause button
+         */
+        currentsong = findViewById(R.id.current_song);
+        currentsong.setSelected(true);
+        playpausebutton = findViewById(R.id.current_button);
+        song_iv = findViewById(R.id.song_iv);
+
+
+        /**
+         * Find all the buttons for the bottom menu
+         */
+        homebutton = findViewById(R.id.homebtn);
+        searchbutton = findViewById(R.id.searchbtn);
+        librarybutton = findViewById(R.id.librarybtn);
+        playingbutton = findViewById(R.id.playingbtn);
+
+        /**
+         * Home button to create a new activity
+         */
+        homebutton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent myIntent = new Intent(MainActivity.this, MainActivity.class);
+                myIntent.putExtra("key", track.toString());
+                MainActivity.this.startActivity(myIntent);
+            }
+        });
+
+        /**
+         * Search button to create a new activity
+         */
+        searchbutton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent myIntent = new Intent(MainActivity.this, SearchActivity.class);
+                myIntent.putExtra("key", track.toString());
+                MainActivity.this.startActivity(myIntent);
+            }
+        });
+
+        /**
+         * Libray button to create a new activity
+         */
+        librarybutton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent myIntent = new Intent(MainActivity.this, LibraryActivity.class);
+                myIntent.putExtra("key", track.toString());
+                MainActivity.this.startActivity(myIntent);
+            }
+        });
+
+        /**
+         * Playing Button to create a new activity
+         */
+        playingbutton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent myIntent = new Intent(MainActivity.this, PlayingActivity.class);
+                myIntent.putExtra("key", track.toString());
+                MainActivity.this.startActivity(myIntent);
+            }
+        });
+
+
+    }
+
+    public SpotifyAppRemote getSpotifyRemote() {
+        return mSpotifyAppRemote;
     }
 }
 

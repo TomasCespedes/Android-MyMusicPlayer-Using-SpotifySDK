@@ -30,17 +30,19 @@
         android:layout_height="match_parent"
         android:gravity="bottom|start"
         >
+
         <!-- Current song textView -->
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:id="@+id/current_song"
-            android:text="@string/no_song_playing"
+            android:text=""
             android:textSize="50sp"
             android:textColor="#FFFFFF"
             android:background="#808080"
             android:paddingRight="65dp"
             android:paddingBottom="50dp"
+
 
 
             android:focusable="true"
