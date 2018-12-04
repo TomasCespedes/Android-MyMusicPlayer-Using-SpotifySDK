@@ -2,49 +2,23 @@ package edu.stlawu.finalproject;
 import com.spotify.android.appremote.api.ConnectionParams;
 import com.spotify.android.appremote.api.Connector;
 import com.spotify.android.appremote.api.SpotifyAppRemote;
-
 import com.spotify.protocol.client.CallResult;
-import com.spotify.protocol.client.Result;
 import com.spotify.protocol.client.Subscription;
-import com.spotify.protocol.types.Capabilities;
-import com.spotify.protocol.types.Image;
-import com.spotify.protocol.types.ImageUri;
-import com.spotify.protocol.types.LibraryState;
 import com.spotify.protocol.types.PlayerState;
 import com.spotify.protocol.types.Track;
-import com.spotify.protocol.types.Uri;
-import com.spotify.protocol.types.UriWithOptionExtras;
-import com.spotify.protocol.types.Uris;
-
-
-import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
-import android.provider.MediaStore;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
-import android.widget.HorizontalScrollView;
 import android.widget.ImageButton;
 import android.widget.ImageView;
-import android.widget.ScrollView;
 import android.widget.TextView;
 
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.InputStream;
-import java.net.Inet4Address;
-import java.net.InetAddress;
-import java.net.URI;
-import java.net.UnknownHostException;
-
-import static android.icu.lang.UCharacter.GraphemeClusterBreak.T;
 
 /**
  * Source to set up the code to connect to Spotify
@@ -57,6 +31,7 @@ public class MainActivity extends AppCompatActivity {
     private static final String REDIRECT_URI = "FinalProjectCS450://callback";
     public SpotifyAppRemote mSpotifyAppRemote;
     private Track track;
+    private String accessToken;
 
     // TextViews
     private TextView currentsong;
@@ -123,6 +98,10 @@ public class MainActivity extends AppCompatActivity {
                         // Something went wrong when attempting to connect! Handle errors here
                     }
                 });
+        /**
+         * Get the access token
+         */
+
     }
 
     /**
@@ -134,6 +113,11 @@ public class MainActivity extends AppCompatActivity {
         mSpotifyAppRemote.getPlayerApi().play("spotify:track:0VgkVdmE4gld66l8iyGjgx");
 
         subscribetoPlayerState();
+
+        //TestClass.run();
+        WebAPIReader read = new WebAPIReader("https://api.spotify.com/v1/audio-analysis/spotify:track:0VgkVdmE4gld66l8iyGjgx", "MyToken");
+        Thread webThread = new Thread(read);
+        webThread.start();
 
         /**
          * Button to play and pause the song
@@ -160,6 +144,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void subscribetoPlayerState() {
+
         // Subscribe to PlayerState
         mSpotifyAppRemote.getPlayerApi()
                 .subscribeToPlayerState()
@@ -169,6 +154,8 @@ public class MainActivity extends AppCompatActivity {
                     // If a song is playing get the track name and artist name
                     public void onEvent(PlayerState playerState) {
                         track = playerState.track;
+
+                        Log.i("PLAYERSTATE", playerState.track.toString());
                         if (track != null) {
                             /**
                              * Set data to views (track name by track artist)
