@@ -2,6 +2,9 @@ package edu.stlawu.finalproject;
 import com.spotify.android.appremote.api.ConnectionParams;
 import com.spotify.android.appremote.api.Connector;
 import com.spotify.android.appremote.api.SpotifyAppRemote;
+import com.spotify.android.appremote.api.error.CouldNotFindSpotifyApp;
+import com.spotify.android.appremote.api.error.NotLoggedInException;
+import com.spotify.android.appremote.api.error.UserNotAuthorizedException;
 import com.spotify.protocol.client.CallResult;
 import com.spotify.protocol.client.Subscription;
 import com.spotify.protocol.types.PlayerState;
@@ -55,14 +58,12 @@ public class MainActivity extends AppCompatActivity {
         init();
     }
 
+
     @Override
     protected void onStart() {
         super.onStart();
 
         connectToRemote();
-
-
-
 
     }
 
@@ -146,6 +147,7 @@ public class MainActivity extends AppCompatActivity {
     private void subscribetoPlayerState() {
 
         // Subscribe to PlayerState
+
         mSpotifyAppRemote.getPlayerApi()
                 .subscribeToPlayerState()
                 .setEventCallback(new Subscription.EventCallback<PlayerState>() {
@@ -164,6 +166,8 @@ public class MainActivity extends AppCompatActivity {
                             /**
                              * Get Image for the track
                              */
+
+
                             mSpotifyAppRemote.getImagesApi().getImage(track.imageUri)
                                     .setResultCallback(new CallResult.ResultCallback<Bitmap>() {
                                         @Override
@@ -214,7 +218,6 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 Intent myIntent = new Intent(MainActivity.this, MainActivity.class);
-                myIntent.putExtra("key", track.toString());
                 MainActivity.this.startActivity(myIntent);
             }
         });
@@ -226,7 +229,6 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 Intent myIntent = new Intent(MainActivity.this, SearchActivity.class);
-                myIntent.putExtra("key", track.toString());
                 MainActivity.this.startActivity(myIntent);
             }
         });
@@ -238,7 +240,6 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 Intent myIntent = new Intent(MainActivity.this, LibraryActivity.class);
-                myIntent.putExtra("key", track.toString());
                 MainActivity.this.startActivity(myIntent);
             }
         });
@@ -250,7 +251,6 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 Intent myIntent = new Intent(MainActivity.this, PlayingActivity.class);
-                myIntent.putExtra("key", track.toString());
                 MainActivity.this.startActivity(myIntent);
             }
         });
@@ -258,8 +258,5 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-    public SpotifyAppRemote getSpotifyRemote() {
-        return mSpotifyAppRemote;
-    }
 }
 

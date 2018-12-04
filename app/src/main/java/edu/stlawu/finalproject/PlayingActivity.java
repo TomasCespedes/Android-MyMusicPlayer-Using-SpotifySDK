@@ -33,7 +33,7 @@ public class PlayingActivity extends AppCompatActivity {
     // TextViews
     private TextView currentsong;
     // Buttons
-    private ImageButton playpausebutton;
+    private ImageButton playpausebutton, nextbutton, previousbutton;
     private Button homebutton, searchbutton, librarybutton, playingbutton;
     // Tracker for song playing status (play or pause)
     private String currenttracker = "play";
@@ -75,6 +75,8 @@ public class PlayingActivity extends AppCompatActivity {
         currentsong = findViewById(R.id.songName);
         song_iv = findViewById(R.id.songPicture);
         playpausebutton = findViewById(R.id.playingPauseStop);
+        nextbutton = findViewById(R.id.nextSong);
+        previousbutton = findViewById(R.id.prevSong);
 
         // Find all the buttons for the bottom menu
         homebutton = findViewById(R.id.homebtn);
@@ -244,6 +246,24 @@ public class PlayingActivity extends AppCompatActivity {
                     mSpotifyAppRemote.getPlayerApi().resume();
 
                 }
+            }
+        });
+
+        /**
+         * Button to play the next song
+         */
+
+        nextbutton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mSpotifyAppRemote.getPlayerApi().skipNext();
+            }
+        });
+
+        previousbutton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mSpotifyAppRemote.getPlayerApi().skipPrevious();
             }
         });
 
