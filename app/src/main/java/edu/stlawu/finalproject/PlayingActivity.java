@@ -259,13 +259,5 @@ public class PlayingActivity extends AppCompatActivity {
                 mSpotifyAppRemote.getPlayerApi().skipNext();
             }
         });
-
-        previousbutton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                mSpotifyAppRemote.getPlayerApi().skipPrevious();
-            }
-        });
-
     }
 }

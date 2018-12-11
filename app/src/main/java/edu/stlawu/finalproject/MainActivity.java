@@ -2,52 +2,33 @@ package edu.stlawu.finalproject;
 import com.spotify.android.appremote.api.ConnectionParams;
 import com.spotify.android.appremote.api.Connector;
 import com.spotify.android.appremote.api.SpotifyAppRemote;
-
-import com.spotify.android.appremote.api.error.CouldNotFindSpotifyApp;
-import com.spotify.android.appremote.api.error.NotLoggedInException;
-import com.spotify.android.appremote.api.error.UserNotAuthorizedException;
 import com.spotify.protocol.client.CallResult;
-import com.spotify.protocol.client.Result;
 import com.spotify.protocol.client.Subscription;
-import com.spotify.protocol.types.Capabilities;
-import com.spotify.protocol.types.Image;
-import com.spotify.protocol.types.ImageUri;
-import com.spotify.protocol.types.LibraryState;
 import com.spotify.protocol.types.PlayerState;
 import com.spotify.protocol.types.Track;
-import com.spotify.protocol.types.Uri;
-import com.spotify.protocol.types.UriWithOptionExtras;
-import com.spotify.protocol.types.Uris;
-
-
-import android.app.Activity;
+import com.spotify.sdk.android.authentication.AuthenticationClient;
+import com.spotify.sdk.android.authentication.AuthenticationRequest;
+import com.spotify.sdk.android.authentication.AuthenticationResponse;
 import android.content.Intent;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
-import android.provider.MediaStore;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
-import android.widget.HorizontalScrollView;
 import android.widget.ImageButton;
 import android.widget.ImageView;
-import android.widget.ScrollView;
 import android.widget.TextView;
+import kaaes.spotify.webapi.android.SpotifyApi;
+import kaaes.spotify.webapi.android.SpotifyCallback;
+import kaaes.spotify.webapi.android.SpotifyError;
+import kaaes.spotify.webapi.android.SpotifyService;
+import kaaes.spotify.webapi.android.models.Pager;
+import kaaes.spotify.webapi.android.models.SavedTrack;
+import retrofit.client.Response;
 
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.InputStream;
-import java.net.Inet4Address;
-import java.net.InetAddress;
-import java.net.URI;
-import java.net.UnknownHostException;
-
-import static android.icu.lang.UCharacter.GraphemeClusterBreak.T;
 
 /**
  * Source to set up the code to connect to Spotify
@@ -56,8 +37,15 @@ import static android.icu.lang.UCharacter.GraphemeClusterBreak.T;
 
 public class MainActivity extends AppCompatActivity {
 
+    // Client ID and Redirect URI gotten from Spotify
     private static final String CLIENT_ID = "377538ebcf9e4cdb9c4b5373e62a53a3";
     private static final String REDIRECT_URI = "FinalProjectCS450://callback";
+
+    // Request code will be used to verify if result comes from the login activity. Can be set to any integer.
+    private static final int REQUEST_CODE = 1337;
+
+
+    // App remote for Spotify to control song playback
     public SpotifyAppRemote mSpotifyAppRemote;
     private Track track;
 
@@ -74,6 +62,10 @@ public class MainActivity extends AppCompatActivity {
     // ImageViews
     private ImageView song_iv;
 
+    private SpotifyApi api = new SpotifyApi();
+    private SpotifyService spotifyService;
+
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -88,10 +80,74 @@ public class MainActivity extends AppCompatActivity {
     protected void onStart() {
         super.onStart();
 
+        // Call the method to get the token
+        getToken();
+
+        // Connect to the remote
         connectToRemote();
 
     }
 
+    private void getToken() {
+        AuthenticationRequest.Builder builder =
+                new AuthenticationRequest.Builder(CLIENT_ID, AuthenticationResponse.Type.TOKEN, REDIRECT_URI);
+
+        builder.setScopes(new String[]{"streaming"});
+        AuthenticationRequest request = builder.build();
+
+        AuthenticationClient.openLoginActivity(this, REQUEST_CODE, request);
+    }
+
+    // Receive authentication result which contains the token
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
+        super.onActivityResult(requestCode, resultCode, intent);
+
+        // Check if result comes from the correct activity
+        if (requestCode == REQUEST_CODE) {
+            AuthenticationResponse response = AuthenticationClient.getResponse(resultCode, intent);
+
+            switch (response.getType()) {
+                // Response was successful and contains auth token
+                case TOKEN:
+                    // Handle successful response
+                    api.setAccessToken(response.getAccessToken());
+                    spotifyService = api.getService();
+                    Log.e("Tokens" , response.getAccessToken());
+
+                    spotifyService.getMySavedTracks(new SpotifyCallback<Pager<SavedTrack>>() {
+                        @Override
+                        public void failure(SpotifyError spotifyError) {
+                            Log.e("SpotifyErrors", spotifyError.toString());
+                        }
+
+                        @Override
+                        public void success(Pager<SavedTrack> savedTrackPager, Response response) {
+                            Log.e("Savedsongs", response.getReason());
+                        }
+                    });
+
+                    break;
+
+                // Auth flow returned an error
+                case ERROR:
+                    // Handle error response
+                    Log.e("SpotifyErrors", response.getError());
+                    break;
+
+                // Most likely auth flow was cancelled
+                default:
+                    // Handle other cases
+                    Log.e("SpotifyErrors", "WHY YOU CANCEL?");
+            }
+        }
+    }
+
+
+    /**
+     * Connect to the remote so user can
+     * interact with songs
+     */
     private void connectToRemote() {
         /**
          * Set the connection parameters
@@ -126,6 +182,7 @@ public class MainActivity extends AppCompatActivity {
                 });
     }
 
+
     /**
      * Our app is connected to spotify and streaming
      * can now happen.
@@ -134,6 +191,9 @@ public class MainActivity extends AppCompatActivity {
         // Play a playlist
         mSpotifyAppRemote.getPlayerApi().play("spotify:track:0VgkVdmE4gld66l8iyGjgx");
 
+
+        // Call the subscribe to Playerstate Method to get
+        // current Playerstate
         subscribetoPlayerState();
 
         /**
@@ -160,6 +220,11 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
+
+    /**
+     *Subscribe to PlayerState and get current playing information
+     * Uses the Spotify Remote
+     */
     private void subscribetoPlayerState() {
         // Subscribe to PlayerState
 
@@ -205,6 +270,9 @@ public class MainActivity extends AppCompatActivity {
         SpotifyAppRemote.disconnect(mSpotifyAppRemote);
     }
 
+    /**
+     * Initialize all views and fields
+     */
     private void init() {
 
         /**
@@ -270,6 +338,7 @@ public class MainActivity extends AppCompatActivity {
 
 
     }
+
 
 }
 
