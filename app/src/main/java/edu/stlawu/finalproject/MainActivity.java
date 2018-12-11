@@ -2,6 +2,10 @@ package edu.stlawu.finalproject;
 import com.spotify.android.appremote.api.ConnectionParams;
 import com.spotify.android.appremote.api.Connector;
 import com.spotify.android.appremote.api.SpotifyAppRemote;
+
+import com.spotify.android.appremote.api.error.CouldNotFindSpotifyApp;
+import com.spotify.android.appremote.api.error.NotLoggedInException;
+import com.spotify.android.appremote.api.error.UserNotAuthorizedException;
 import com.spotify.protocol.client.CallResult;
 import com.spotify.protocol.client.Subscription;
 import com.spotify.protocol.types.PlayerState;
@@ -9,6 +13,7 @@ import com.spotify.protocol.types.Track;
 import com.spotify.sdk.android.authentication.AuthenticationClient;
 import com.spotify.sdk.android.authentication.AuthenticationRequest;
 import com.spotify.sdk.android.authentication.AuthenticationResponse;
+
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
@@ -48,6 +53,7 @@ public class MainActivity extends AppCompatActivity {
     // App remote for Spotify to control song playback
     public SpotifyAppRemote mSpotifyAppRemote;
     private Track track;
+    private String accessToken;
 
     // TextViews
     private TextView currentsong;
@@ -180,6 +186,10 @@ public class MainActivity extends AppCompatActivity {
                         // Something went wrong when attempting to connect! Handle errors here
                     }
                 });
+        /**
+         * Get the access token
+         */
+
     }
 
 
@@ -195,6 +205,11 @@ public class MainActivity extends AppCompatActivity {
         // Call the subscribe to Playerstate Method to get
         // current Playerstate
         subscribetoPlayerState();
+
+        //TestClass.run();
+        WebAPIReader read = new WebAPIReader("https://api.spotify.com/v1/audio-analysis/spotify:track:0VgkVdmE4gld66l8iyGjgx", "MyToken");
+        Thread webThread = new Thread(read);
+        webThread.start();
 
         /**
          * Button to play and pause the song
@@ -226,6 +241,7 @@ public class MainActivity extends AppCompatActivity {
      * Uses the Spotify Remote
      */
     private void subscribetoPlayerState() {
+
         // Subscribe to PlayerState
 
         mSpotifyAppRemote.getPlayerApi()
@@ -236,6 +252,8 @@ public class MainActivity extends AppCompatActivity {
                     // If a song is playing get the track name and artist name
                     public void onEvent(PlayerState playerState) {
                         track = playerState.track;
+
+                        Log.i("PLAYERSTATE", playerState.track.toString());
                         if (track != null) {
                             /**
                              * Set data to views (track name by track artist)
