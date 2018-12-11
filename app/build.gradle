@@ -35,12 +35,12 @@ dependencies {
     androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.2'
 
     // Spotify App Dependencies
-    compile project(':spotify-app-remote-release-0.5.0')
-    compile "com.google.code.gson:gson:2.6.1"
+    implementation project(':spotify-app-remote-release-0.5.0')
+    implementation "com.google.code.gson:gson:2.6.1"
 
     implementation 'com.spotify.android:auth:1.1.0'
 
     // Web API for Spotify
-    compile 'com.github.kaaes:spotify-web-api-android:0.4.1'
+    implementation 'com.github.kaaes:spotify-web-api-android:0.4.1'
 
 }
