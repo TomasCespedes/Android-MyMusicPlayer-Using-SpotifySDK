@@ -1,11 +1,8 @@
 package edu.stlawu.finalproject;
+
 import com.spotify.android.appremote.api.ConnectionParams;
 import com.spotify.android.appremote.api.Connector;
 import com.spotify.android.appremote.api.SpotifyAppRemote;
-
-import com.spotify.android.appremote.api.error.CouldNotFindSpotifyApp;
-import com.spotify.android.appremote.api.error.NotLoggedInException;
-import com.spotify.android.appremote.api.error.UserNotAuthorizedException;
 import com.spotify.protocol.client.CallResult;
 import com.spotify.protocol.client.Subscription;
 import com.spotify.protocol.types.PlayerState;
@@ -13,7 +10,6 @@ import com.spotify.protocol.types.Track;
 import com.spotify.sdk.android.authentication.AuthenticationClient;
 import com.spotify.sdk.android.authentication.AuthenticationRequest;
 import com.spotify.sdk.android.authentication.AuthenticationResponse;
-
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
@@ -31,7 +27,7 @@ import kaaes.spotify.webapi.android.SpotifyCallback;
 import kaaes.spotify.webapi.android.SpotifyError;
 import kaaes.spotify.webapi.android.SpotifyService;
 import kaaes.spotify.webapi.android.models.Pager;
-import kaaes.spotify.webapi.android.models.SavedTrack;
+import kaaes.spotify.webapi.android.models.PlaylistSimple;
 import retrofit.client.Response;
 
 
@@ -48,7 +44,6 @@ public class MainActivity extends AppCompatActivity {
 
     // Request code will be used to verify if result comes from the login activity. Can be set to any integer.
     private static final int REQUEST_CODE = 1337;
-
 
     // App remote for Spotify to control song playback
     public SpotifyAppRemote mSpotifyAppRemote;
@@ -94,6 +89,9 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
+    /**
+     * Method to open the Login Activity and get the Token
+     */
     private void getToken() {
         AuthenticationRequest.Builder builder =
                 new AuthenticationRequest.Builder(CLIENT_ID, AuthenticationResponse.Type.TOKEN, REDIRECT_URI);
@@ -104,7 +102,13 @@ public class MainActivity extends AppCompatActivity {
         AuthenticationClient.openLoginActivity(this, REQUEST_CODE, request);
     }
 
-    // Receive authentication result which contains the token
+    /**
+     * onActivityResult from Login Activity.
+     * Used for getting authentication token to use Web API.
+     * @param requestCode
+     * @param resultCode
+     * @param intent
+     */
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
         super.onActivityResult(requestCode, resultCode, intent);
@@ -117,21 +121,44 @@ public class MainActivity extends AppCompatActivity {
                 // Response was successful and contains auth token
                 case TOKEN:
                     // Handle successful response
-                    api.setAccessToken(response.getAccessToken());
-                    spotifyService = api.getService();
-                    Log.e("Tokens" , response.getAccessToken());
 
-                    spotifyService.getMySavedTracks(new SpotifyCallback<Pager<SavedTrack>>() {
+                    // Get the Access Token from the response
+                    accessToken = response.getAccessToken();
+
+                    // Set the Access token so we can use API
+                    api.setAccessToken(accessToken);
+                    spotifyService = api.getService();
+
+                    // Get "MY" playlists
+                    spotifyService.getMyPlaylists(new SpotifyCallback<Pager<PlaylistSimple>>() {
+                        // Request failed
                         @Override
                         public void failure(SpotifyError spotifyError) {
-                            Log.e("SpotifyErrors", spotifyError.toString());
+                            Log.e("playlists", "Can't Get Playlists");
                         }
 
+                        // Request was Successful
                         @Override
-                        public void success(Pager<SavedTrack> savedTrackPager, Response response) {
-                            Log.e("Savedsongs", response.getReason());
+                        public void success(Pager<PlaylistSimple> playlistSimplePager, Response response) {
+                            // TODO Get Playlists and Show them on Main Page
+                            Log.e("Playlists", response.toString());
+                            Log.e("Playlists", playlistSimplePager.items.get(0).name);
                         }
                     });
+
+                    // TODO For some reason mysavedtracks returns an error
+                    // TODO Insufficent Client Scope 403 is error
+//                    spotifyService.getMySavedTracks(new SpotifyCallback<Pager<SavedTrack>>() {
+//                        @Override
+//                        public void failure(SpotifyError spotifyError) {
+//                            Log.e("SpotifyErrorz", spotifyError.toString());
+//                        }
+//
+//                        @Override
+//                        public void success(Pager<SavedTrack> savedTrackPager, Response response) {
+//                            Log.e("Savedsongs", response.getReason());
+//                        }
+//                    });
 
                     break;
 
@@ -186,9 +213,6 @@ public class MainActivity extends AppCompatActivity {
                         // Something went wrong when attempting to connect! Handle errors here
                     }
                 });
-        /**
-         * Get the access token
-         */
 
     }
 
@@ -202,18 +226,10 @@ public class MainActivity extends AppCompatActivity {
         mSpotifyAppRemote.getPlayerApi().play("spotify:track:0VgkVdmE4gld66l8iyGjgx");
 
 
-        // Call the subscribe to Playerstate Method to get
-        // current Playerstate
+        // Call the subscribe to Playerstate Method
         subscribetoPlayerState();
 
-        //TestClass.run();
-        WebAPIReader read = new WebAPIReader("https://api.spotify.com/v1/audio-analysis/spotify:track:0VgkVdmE4gld66l8iyGjgx", "MyToken");
-        Thread webThread = new Thread(read);
-        webThread.start();
-
-        /**
-         * Button to play and pause the song
-         */
+        // Button for playing/pausing the current song
         playpausebutton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
