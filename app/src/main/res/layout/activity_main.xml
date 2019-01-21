@@ -28,8 +28,14 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:gravity="bottom|start"
-        >
+        android:gravity="bottom|start">
+
+        <android.support.v4.view.ViewPager
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/playlistpager">
+
+        </android.support.v4.view.ViewPager>
 
         <!-- Current song textView -->
         <TextView

@@ -14,6 +14,7 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
+import android.provider.MediaStore;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -22,11 +23,16 @@ import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
+
+import java.sql.Array;
+import java.util.List;
+
 import kaaes.spotify.webapi.android.SpotifyApi;
 import kaaes.spotify.webapi.android.SpotifyCallback;
 import kaaes.spotify.webapi.android.SpotifyError;
 import kaaes.spotify.webapi.android.SpotifyService;
 import kaaes.spotify.webapi.android.models.Pager;
+import kaaes.spotify.webapi.android.models.Playlist;
 import kaaes.spotify.webapi.android.models.PlaylistSimple;
 import retrofit.client.Response;
 
@@ -67,7 +73,6 @@ public class MainActivity extends AppCompatActivity {
     private SpotifyService spotifyService;
 
 
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -81,11 +86,13 @@ public class MainActivity extends AppCompatActivity {
     protected void onStart() {
         super.onStart();
 
+        // Connect to the remote
+        connectToRemote();
+
         // Call the method to get the token
         getToken();
 
-        // Connect to the remote
-        connectToRemote();
+
 
     }
 
@@ -134,15 +141,20 @@ public class MainActivity extends AppCompatActivity {
                         // Request failed
                         @Override
                         public void failure(SpotifyError spotifyError) {
-                            Log.e("playlists", "Can't Get Playlists");
+                            Log.e("playlists", spotifyError.getMessage());
                         }
 
                         // Request was Successful
                         @Override
                         public void success(Pager<PlaylistSimple> playlistSimplePager, Response response) {
                             // TODO Get Playlists and Show them on Main Page
-                            Log.e("Playlists", response.toString());
-                            Log.e("Playlists", playlistSimplePager.items.get(0).name);
+                            Log.e("Playlists", response.getReason());
+                            Log.e("Playlists", String.valueOf(playlistSimplePager.items.get(0).tracks));
+
+                            Log.e("References", playlistSimplePager.items.get(0).snapshot_id);
+
+
+
                         }
                     });
 
@@ -175,6 +187,8 @@ public class MainActivity extends AppCompatActivity {
             }
         }
     }
+
+
 
 
     /**
