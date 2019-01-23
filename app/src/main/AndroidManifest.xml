@@ -23,7 +23,12 @@
             android:theme="@android:style/Theme.Translucent.NoTitleBar" />
         <activity android:name=".PlayingActivity" />
         <activity android:name=".SearchActivity" />
-        <activity android:name=".LibraryActivity"></activity>
+        <activity android:name=".LibraryActivity" />
+
+        <service
+            android:name=".RemoteService"
+            android:enabled="true"
+            android:exported="true"></service>
     </application>
 
 </manifest>
