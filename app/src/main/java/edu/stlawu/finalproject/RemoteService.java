@@ -2,6 +2,7 @@ package edu.stlawu.finalproject;
 
 import android.app.Service;
 import android.content.Intent;
+import android.os.Binder;
 import android.os.IBinder;
 import android.util.Log;
 
@@ -17,6 +18,9 @@ public class RemoteService extends Service {
     // App remote for Spotify to control song playback
     public SpotifyAppRemote mSpotifyAppRemote;
 
+    // Binder for communication channel
+    public IBinder myBinder = new MyBinder();
+
     public RemoteService() {
 
     }
@@ -29,21 +33,34 @@ public class RemoteService extends Service {
     }
 
     @Override
-    public IBinder onBind(Intent intent) {
-        // TODO: Return the communication channel to the service.
-        throw new UnsupportedOperationException("Not yet implemented");
+    public boolean onUnbind(Intent intent) {
+        return false;
     }
+
+
+    @Override
+    public IBinder onBind(Intent intent) {
+        return myBinder;
+    }
+
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         return START_STICKY;
     }
 
+    public class MyBinder extends Binder {
+        RemoteService getService() {
+            return RemoteService.this;
+        }
+    }
+
+
     /**
      * Connect to the remote so user can
      * interact with songs
      */
-    private void connectToRemote() {
+    public void connectToRemote() {
         /**
          * Set the connection parameters
          */
@@ -83,9 +100,9 @@ public class RemoteService extends Service {
      * Our app is connected to spotify and streaming
      * can now happen.
      */
-    private void connected() {
+    public void connected() {
         // Play a playlist
-        mSpotifyAppRemote.getPlayerApi().play("spotify:track:5274I4mUMnYczyeXkGDWZN");
+        //mSpotifyAppRemote.getPlayerApi().play("spotify:track:5274I4mUMnYczyeXkGDWZN");
 
         Log.e("Hello!", "connected");
 
@@ -111,23 +128,23 @@ public class RemoteService extends Service {
 //        });
     }
 
-    private void pause() {
+    public void pause() {
         mSpotifyAppRemote.getPlayerApi().pause();
     }
 
-    private void resume() {
+    public void resume() {
         mSpotifyAppRemote.getPlayerApi().resume();
     }
 
-    private void next() {
+    public void next() {
         mSpotifyAppRemote.getPlayerApi().skipNext();
     }
 
-    private void previous() {
+    public void previous() {
         mSpotifyAppRemote.getPlayerApi().skipPrevious();
     }
 
-    private void play(String songuri) {
+    public void play(String songuri) {
         mSpotifyAppRemote.getPlayerApi().play(songuri);
     }
 

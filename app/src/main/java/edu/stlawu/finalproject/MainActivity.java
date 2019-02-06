@@ -10,10 +10,15 @@ import com.spotify.protocol.types.Track;
 import com.spotify.sdk.android.authentication.AuthenticationClient;
 import com.spotify.sdk.android.authentication.AuthenticationRequest;
 import com.spotify.sdk.android.authentication.AuthenticationResponse;
+
+import android.content.ComponentName;
+import android.content.Context;
 import android.content.Intent;
+import android.content.ServiceConnection;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
+import android.os.IBinder;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -65,13 +70,41 @@ public class MainActivity extends AppCompatActivity {
     private SpotifyApi api = new SpotifyApi();
     private SpotifyService spotifyService;
 
+    // ServiceConnection
+    RemoteService remoteService;
+    boolean isBound = false;
+
+    public ServiceConnection serviceConnection = new ServiceConnection() {
+        @Override
+        public void onServiceConnected(ComponentName name, IBinder service) {
+            RemoteService.MyBinder binder = (RemoteService.MyBinder) service;
+            remoteService = binder.getService();
+            isBound = true;
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName name) {
+            remoteService = null;
+            isBound = false;
+        }
+    };
+
+
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        // Connect to the Remote Service
+        Intent intent = new Intent(this, RemoteService.class);
+        bindService(intent, serviceConnection, Context.BIND_AUTO_CREATE);
+
         init();
+
+
+
     }
 
 
@@ -81,13 +114,6 @@ public class MainActivity extends AppCompatActivity {
 
         // TODO Foreground service is apparently what we want here.
         // TODO http://codetheory.in/understanding-android-started-bound-services/
-        Intent intent = new Intent(this, RemoteService.class);
-        //startForegroundService(intent);
-
-
-
-        startService(new Intent(this, edu.stlawu.finalproject.RemoteService.class));
-
 
         // Call the method to get the token
         getToken();
@@ -104,6 +130,7 @@ public class MainActivity extends AppCompatActivity {
         AuthenticationRequest request = builder.build();
 
         AuthenticationClient.openLoginActivity(this, REQUEST_CODE, request);
+        
     }
 
     /**
@@ -325,6 +352,7 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View v) {
                 Intent myIntent = new Intent(MainActivity.this, LibraryActivity.class);
                 MainActivity.this.startActivity(myIntent);
+
             }
         });
 
