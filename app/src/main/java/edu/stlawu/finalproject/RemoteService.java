@@ -34,6 +34,10 @@ public class RemoteService extends Service {
         throw new UnsupportedOperationException("Not yet implemented");
     }
 
+    @Override
+    public int onStartCommand(Intent intent, int flags, int startId) {
+        return START_STICKY;
+    }
 
     /**
      * Connect to the remote so user can
@@ -106,6 +110,28 @@ public class RemoteService extends Service {
 //            }
 //        });
     }
+
+    private void pause() {
+        mSpotifyAppRemote.getPlayerApi().pause();
+    }
+
+    private void resume() {
+        mSpotifyAppRemote.getPlayerApi().resume();
+    }
+
+    private void next() {
+        mSpotifyAppRemote.getPlayerApi().skipNext();
+    }
+
+    private void previous() {
+        mSpotifyAppRemote.getPlayerApi().skipPrevious();
+    }
+
+    private void play(String songuri) {
+        mSpotifyAppRemote.getPlayerApi().play(songuri);
+    }
+
+
 
 
 }

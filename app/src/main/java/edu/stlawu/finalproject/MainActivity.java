@@ -79,7 +79,15 @@ public class MainActivity extends AppCompatActivity {
     protected void onStart() {
         super.onStart();
 
+        // TODO Foreground service is apparently what we want here.
+        // TODO http://codetheory.in/understanding-android-started-bound-services/
+        Intent intent = new Intent(this, RemoteService.class);
+        //startForegroundService(intent);
+
+
+
         startService(new Intent(this, edu.stlawu.finalproject.RemoteService.class));
+
 
         // Call the method to get the token
         getToken();
