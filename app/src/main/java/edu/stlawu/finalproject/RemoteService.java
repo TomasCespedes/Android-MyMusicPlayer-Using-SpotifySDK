@@ -5,10 +5,14 @@ import android.content.Intent;
 import android.os.Binder;
 import android.os.IBinder;
 import android.util.Log;
+import android.widget.TextView;
 
 import com.spotify.android.appremote.api.ConnectionParams;
 import com.spotify.android.appremote.api.Connector;
 import com.spotify.android.appremote.api.SpotifyAppRemote;
+import com.spotify.protocol.client.Subscription;
+import com.spotify.protocol.types.PlayerState;
+import com.spotify.protocol.types.Track;
 
 public class RemoteService extends Service {
     // Client ID and Redirect URI gotten from Spotify
@@ -18,12 +22,24 @@ public class RemoteService extends Service {
     // App remote for Spotify to control song playback
     public SpotifyAppRemote mSpotifyAppRemote;
 
+    // Track variable
+    public Track track;
+
     // Binder for communication channel
     public IBinder myBinder = new MyBinder();
 
+    // Trackers
+    // Whether song is playing or not
+    public Boolean songstatustracker = false;
+    // Whether the remote is connected or not
+    public Boolean connected = false;
+
+    // Constructor
     public RemoteService() {
 
     }
+
+    // Methods
 
     @Override
     public void onCreate() {
@@ -61,18 +77,14 @@ public class RemoteService extends Service {
      * interact with songs
      */
     public void connectToRemote() {
-        /**
-         * Set the connection parameters
-         */
+        // Set the connection parameters
         ConnectionParams connectionParams =
                 new ConnectionParams.Builder(CLIENT_ID)
                         .setRedirectUri(REDIRECT_URI)
                         .showAuthView(true)
                         .build();
 
-        /**
-         * Connect app to remote
-         */
+        // Connect to the app remote
         SpotifyAppRemote.connect(this, connectionParams,
                 new Connector.ConnectionListener() {
 
@@ -101,51 +113,63 @@ public class RemoteService extends Service {
      * can now happen.
      */
     public void connected() {
-        // Play a playlist
-        //mSpotifyAppRemote.getPlayerApi().play("spotify:track:5274I4mUMnYczyeXkGDWZN");
+        // Play a song
+        mSpotifyAppRemote.getPlayerApi().play("spotify:track:5274I4mUMnYczyeXkGDWZN");
+        connected = true;
 
-        Log.e("Hello!", "connected");
 
-//        // Button for playing/pausing the current song
-//        playpausebutton.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//
-//                // If song is currently playing, pause it
-//                if (currenttracker == "play") {
-//                    playpausebutton.setImageResource(R.drawable.playbutton);
-//                    currenttracker = "pause";
-//                    mSpotifyAppRemote.getPlayerApi().pause();
-//                }
-//                // If song is currently paused, play it
-//                else if (currenttracker == "pause") {
-//                    playpausebutton.setImageResource(R.drawable.pausebutton);
-//                    currenttracker = "play";
-//                    mSpotifyAppRemote.getPlayerApi().resume();
-//
-//                }
-//            }
-//        });
+    }
+
+    /**
+     * Get the track that is currently playing
+     * @return track
+     */
+    public Track getTrack() {
+
+        mSpotifyAppRemote.getPlayerApi().subscribeToPlayerState().setEventCallback(
+                new Subscription.EventCallback<PlayerState>() {
+                    @Override
+                    public void onEvent(PlayerState playerState) {
+                        track = playerState.track;
+
+                    }
+                }
+        );
+        return track;
     }
 
     public void pause() {
         mSpotifyAppRemote.getPlayerApi().pause();
+        songstatustracker = false;
     }
 
     public void resume() {
         mSpotifyAppRemote.getPlayerApi().resume();
+        songstatustracker = true;
     }
 
     public void next() {
         mSpotifyAppRemote.getPlayerApi().skipNext();
+        songstatustracker = true;
     }
 
     public void previous() {
         mSpotifyAppRemote.getPlayerApi().skipPrevious();
+        songstatustracker = true;
     }
 
     public void play(String songuri) {
         mSpotifyAppRemote.getPlayerApi().play(songuri);
+        songstatustracker = true;
+    }
+
+    public boolean songstatus() {
+        return songstatustracker;
+    }
+
+    public void disconnect() {
+        // Disconnect from app
+        SpotifyAppRemote.disconnect(mSpotifyAppRemote);
     }
 
 

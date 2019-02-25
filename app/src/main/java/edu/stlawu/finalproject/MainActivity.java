@@ -51,18 +51,15 @@ public class MainActivity extends AppCompatActivity {
     private static final int REQUEST_CODE = 1337;
 
     // App remote for Spotify to control song playback
-    private Track track;
+    public static Track track;
     private String accessToken;
 
     // TextViews
-    private TextView currentsong;
+    public static TextView currentsong;
 
     // Buttons
     private ImageButton playpausebutton;
     private Button homebutton, searchbutton, librarybutton, playingbutton;
-
-    // Tracker for song playing status (play or pause)
-    private String currenttracker = "play";
 
     // ImageViews
     private ImageView song_iv;
@@ -74,7 +71,9 @@ public class MainActivity extends AppCompatActivity {
     RemoteService remoteService;
     boolean isBound = false;
 
+    // Remote service connection set up
     public ServiceConnection serviceConnection = new ServiceConnection() {
+
         @Override
         public void onServiceConnected(ComponentName name, IBinder service) {
             RemoteService.MyBinder binder = (RemoteService.MyBinder) service;
@@ -90,8 +89,6 @@ public class MainActivity extends AppCompatActivity {
     };
 
 
-
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -101,10 +98,8 @@ public class MainActivity extends AppCompatActivity {
         Intent intent = new Intent(this, RemoteService.class);
         bindService(intent, serviceConnection, Context.BIND_AUTO_CREATE);
 
+        // Initialize all the views and buttons
         init();
-
-
-
     }
 
 
@@ -117,6 +112,35 @@ public class MainActivity extends AppCompatActivity {
 
         // Call the method to get the token
         getToken();
+
+
+        // Playing / Pause buttton listener on main page
+        playpausebutton.setOnClickListener(new View.OnClickListener() {
+                   @Override
+                   public void onClick(View v) {
+                       // Song is playing, so pause it
+                       if (remoteService.songstatus()) {
+                           // Pause song through remote
+                           remoteService.pause();
+                           // Change the picture to a play button
+                           playpausebutton.setImageResource(R.drawable.playbutton);
+                           // Change the tracker
+                           remoteService.songstatustracker = false;
+                       }
+                       // Song is paused, so resume it
+                       else {
+                           // Resume song through remote
+                           remoteService.resume();
+                           // Change the picture to a pause button
+                           playpausebutton.setImageResource(R.drawable.pausebutton);
+                           // Change the tracker to true
+                           remoteService.songstatustracker = true;
+                       }
+                   }
+               }
+        );
+
+
     }
 
     /**
@@ -130,7 +154,7 @@ public class MainActivity extends AppCompatActivity {
         AuthenticationRequest request = builder.build();
 
         AuthenticationClient.openLoginActivity(this, REQUEST_CODE, request);
-        
+
     }
 
     /**
@@ -225,26 +249,6 @@ public class MainActivity extends AppCompatActivity {
 //        // Call the subscribe to Playerstate Method
 //        subscribetoPlayerState();
 //
-//        // Button for playing/pausing the current song
-//        playpausebutton.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//
-//                // If song is currently playing, pause it
-//                if (currenttracker == "play") {
-//                    playpausebutton.setImageResource(R.drawable.playbutton);
-//                    currenttracker = "pause";
-//                    mSpotifyAppRemote.getPlayerApi().pause();
-//                }
-//                // If song is currently paused, play it
-//                else if (currenttracker == "pause") {
-//                    playpausebutton.setImageResource(R.drawable.pausebutton);
-//                    currenttracker = "play";
-//                    mSpotifyAppRemote.getPlayerApi().resume();
-//
-//                }
-//            }
-//        });
 //    }
 
 
@@ -265,7 +269,6 @@ public class MainActivity extends AppCompatActivity {
 //                    public void onEvent(PlayerState playerState) {
 //                        track = playerState.track;
 //
-//                        Log.i("PLAYERSTATE", playerState.track.toString());
 //                        if (track != null) {
 //                            /**
 //                             * Set data to views (track name by track artist)
@@ -287,7 +290,7 @@ public class MainActivity extends AppCompatActivity {
 //                        }
 //                    }
 //                });
-//    }
+//   }
 
     /**
      * When app stops, disconnect app from Spotify
@@ -297,7 +300,7 @@ public class MainActivity extends AppCompatActivity {
         super.onStop();
 
         // Disconnect from app
-        //SpotifyAppRemote.disconnect(mSpotifyAppRemote);
+        remoteService.disconnect();
     }
 
     /**
@@ -305,26 +308,21 @@ public class MainActivity extends AppCompatActivity {
      */
     private void init() {
 
-        /**
-         * Find views for current song, play/pause button
-         */
+        // Find all the views for current song, play/pause button,
+        // and the song image view
         currentsong = findViewById(R.id.current_song);
         currentsong.setSelected(true);
         playpausebutton = findViewById(R.id.current_button);
         song_iv = findViewById(R.id.song_iv);
 
 
-        /**
-         * Find all the buttons for the bottom menu
-         */
+        // Get all the Button views for the navigation menu at bottom
         homebutton = findViewById(R.id.homebtn);
         searchbutton = findViewById(R.id.searchbtn);
         librarybutton = findViewById(R.id.librarybtn);
         playingbutton = findViewById(R.id.playingbtn);
 
-        /**
-         * Home button to create a new activity
-         */
+        // Home button switch activity
         homebutton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -333,9 +331,7 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        /**
-         * Search button to create a new activity
-         */
+        // Search button switch activity
         searchbutton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -344,32 +340,29 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        /**
-         * Libray button to create a new activity
-         */
+        // Library button switch activity
         librarybutton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Intent myIntent = new Intent(MainActivity.this, LibraryActivity.class);
                 MainActivity.this.startActivity(myIntent);
-
             }
         });
 
-        /**
-         * Playing Button to create a new activity
-         */
+        // Playing button switch activity
         playingbutton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Intent myIntent = new Intent(MainActivity.this, PlayingActivity.class);
                 MainActivity.this.startActivity(myIntent);
             }
-        });
+        }); 
 
 
     }
 
-
+    public void getSongPlaying() {
+        track = remoteService.getTrack();
+    }
 }
 
