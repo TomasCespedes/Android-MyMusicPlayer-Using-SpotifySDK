@@ -4,6 +4,7 @@ import android.app.Service;
 import android.content.Intent;
 import android.os.Binder;
 import android.os.IBinder;
+import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 import android.widget.TextView;
 
@@ -53,12 +54,10 @@ public class RemoteService extends Service {
         return false;
     }
 
-
     @Override
     public IBinder onBind(Intent intent) {
         return myBinder;
     }
-
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
@@ -117,6 +116,7 @@ public class RemoteService extends Service {
         mSpotifyAppRemote.getPlayerApi().play("spotify:track:5274I4mUMnYczyeXkGDWZN");
         connected = true;
 
+        subscribetoPlayerState();
 
     }
 
@@ -124,18 +124,25 @@ public class RemoteService extends Service {
      * Get the track that is currently playing
      * @return track
      */
-    public Track getTrack() {
+    private void subscribetoPlayerState() {
 
         mSpotifyAppRemote.getPlayerApi().subscribeToPlayerState().setEventCallback(
                 new Subscription.EventCallback<PlayerState>() {
                     @Override
                     public void onEvent(PlayerState playerState) {
                         track = playerState.track;
-
+                        sendMessage();
                     }
                 }
         );
-        return track;
+    }
+
+    private void sendMessage() {
+        Intent intent = new Intent("my-event");
+        // add data
+
+        intent.putExtra("track-name", track.name + " by " + track.artist.name);
+        LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
     }
 
     public void pause() {

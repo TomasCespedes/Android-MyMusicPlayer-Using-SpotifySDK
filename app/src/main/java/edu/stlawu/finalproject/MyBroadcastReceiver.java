@@ -41,6 +41,7 @@ public class MyBroadcastReceiver extends BroadcastReceiver {
             // Do something with extracted information...
 
 
+
         } else if (action.equals(BroadcastTypes.PLAYBACK_STATE_CHANGED)) {
             boolean playing = intent.getBooleanExtra("playing", false);
             int positionInMs = intent.getIntExtra("playbackPosition", 0);
