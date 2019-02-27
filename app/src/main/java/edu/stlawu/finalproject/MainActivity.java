@@ -1,11 +1,5 @@
 package edu.stlawu.finalproject;
 
-import com.spotify.android.appremote.api.ConnectionParams;
-import com.spotify.android.appremote.api.Connector;
-import com.spotify.android.appremote.api.SpotifyAppRemote;
-import com.spotify.protocol.client.CallResult;
-import com.spotify.protocol.client.Subscription;
-import com.spotify.protocol.types.PlayerState;
 import com.spotify.protocol.types.Track;
 import com.spotify.sdk.android.authentication.AuthenticationClient;
 import com.spotify.sdk.android.authentication.AuthenticationRequest;
@@ -17,9 +11,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
-import android.graphics.Bitmap;
-import android.graphics.drawable.BitmapDrawable;
-import android.graphics.drawable.Drawable;
 import android.os.IBinder;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AppCompatActivity;
@@ -28,8 +19,10 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageButton;
-import android.widget.ImageView;
 import android.widget.TextView;
+
+import java.util.ArrayList;
+
 import kaaes.spotify.webapi.android.SpotifyApi;
 import kaaes.spotify.webapi.android.SpotifyCallback;
 import kaaes.spotify.webapi.android.SpotifyError;
@@ -64,15 +57,19 @@ public class MainActivity extends AppCompatActivity {
     private ImageButton playpausebutton;
     private Button homebutton, searchbutton, librarybutton, playingbutton;
 
-    // ImageViews
-    private ImageView song_iv;
 
     private SpotifyApi api = new SpotifyApi();
     private SpotifyService spotifyService;
 
     // ServiceConnection
     RemoteService remoteService;
-    boolean isBound = false;
+    boolean service_isBound = false;
+    boolean reciever_isbound = false;
+
+    // Temp variables for testing
+    public String tempsong, tempart;
+
+
 
     // Remote service connection set up
     public ServiceConnection serviceConnection = new ServiceConnection() {
@@ -81,25 +78,32 @@ public class MainActivity extends AppCompatActivity {
         public void onServiceConnected(ComponentName name, IBinder service) {
             RemoteService.MyBinder binder = (RemoteService.MyBinder) service;
             remoteService = binder.getService();
-            isBound = true;
+            service_isBound = true;
         }
 
         @Override
         public void onServiceDisconnected(ComponentName name) {
             remoteService = null;
-            isBound = false;
+            service_isBound = false;
         }
     };
 
-    // handler for received Intents for the "my-event" event
+    // handler for received Intents for the "track-name" event
     private BroadcastReceiver mMessageReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
             // Extract data included in the Intent
-            String message = intent.getStringExtra("track-name");
+            ArrayList<String> message = intent.getStringArrayListExtra("track-info");
             Log.d("receiver", "Got message: " + message);
-            currentsong.setText(message);
+
+            // Save the song information
+            tempsong = message.get(0);
+            tempart = message.get(1);
+
+
+            currentsong.setText((tempsong + " by " + tempart));
         }
+
     };
 
 
@@ -108,30 +112,21 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        // Initialize all the views and buttons
+        init();
+
         // Connect to the Remote Service
         Intent intent = new Intent(this, RemoteService.class);
         bindService(intent, serviceConnection, Context.BIND_AUTO_CREATE);
 
-        // Initialize all the views and buttons
-        init();
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-
-        // Register mMessageReceiver to receive messages.
-        // This is to send information from service.
+        // Register the receiver
         LocalBroadcastManager.getInstance(this).registerReceiver(mMessageReceiver,
-                new IntentFilter("my-event"));
+                new IntentFilter("main-activity"));
+        reciever_isbound = true;
+
 
     }
 
-    @Override
-    protected void onPause() {
-        LocalBroadcastManager.getInstance(this).unregisterReceiver(mMessageReceiver);
-        super.onPause();
-    }
 
     @Override
     protected void onStart() {
@@ -148,30 +143,67 @@ public class MainActivity extends AppCompatActivity {
         playpausebutton.setOnClickListener(new View.OnClickListener() {
                    @Override
                    public void onClick(View v) {
-                       // Song is playing, so pause it
-                       if (remoteService.songstatus()) {
-                           // Pause song through remote
-                           remoteService.pause();
-                           // Change the picture to a play button
-                           playpausebutton.setImageResource(R.drawable.playbutton);
-                           // Change the tracker
-                           remoteService.songstatustracker = false;
-                       }
-                       // Song is paused, so resume it
-                       else {
-                           // Resume song through remote
-                           remoteService.resume();
-                           // Change the picture to a pause button
-                           playpausebutton.setImageResource(R.drawable.pausebutton);
-                           // Change the tracker to true
-                           remoteService.songstatustracker = true;
-                       }
-                   }
+               // Song is playing, so pause it
+               if (remoteService.songstatus()) {
+                   // Pause song through remote
+                   remoteService.pause();
+                   // Change the picture to a play button
+                   playpausebutton.setImageResource(R.drawable.playbutton);
+                   // Change the tracker
+                   remoteService.songstatustracker = false;
                }
+               // Song is paused, so resume it
+               else {
+                   // Resume song through remote
+                   remoteService.resume();
+                   // Change the picture to a pause button
+                   playpausebutton.setImageResource(R.drawable.pausebutton);
+                   // Change the tracker to true
+                   remoteService.songstatustracker = true;
+               }
+               }
+           }
         );
+    }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+        // Check if service is bound already to not double call
+        // This could lead to a data leak
+        if (!service_isBound) {
+            // Binds the service so we can use
+            bindService(new Intent(this, RemoteService.class), serviceConnection, Context.BIND_AUTO_CREATE);
+            // Update boolean tracker
+            service_isBound = true;
+        }
+
+        // Register mMessageReceiver to receive messages.
+        // This is to send information from service.
+        if (!reciever_isbound) {
+            LocalBroadcastManager.getInstance(this).registerReceiver(mMessageReceiver,
+                    new IntentFilter("main-activity"));
+            reciever_isbound = true;
+        }
 
     }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+
+        // Need to unbind our service to prevent leaks
+        unbindService(serviceConnection);
+        // update service boolean to false
+        service_isBound = false;
+        // Need to unbind our reciever to prevent leaks
+        LocalBroadcastManager.getInstance(this).unregisterReceiver(mMessageReceiver);
+        // update register boolean to false
+        reciever_isbound = false;
+    }
+
+
 
     /**
      * Method to open the Login Activity and get the Token
@@ -343,7 +375,9 @@ public class MainActivity extends AppCompatActivity {
         currentsong = findViewById(R.id.current_song);
         currentsong.setSelected(true);
         playpausebutton = findViewById(R.id.current_button);
-        song_iv = findViewById(R.id.song_iv);
+
+        // Get rid of this and it's variables
+        //song_iv = findViewById(R.id.song_iv);
 
 
         // Get all the Button views for the navigation menu at bottom
@@ -383,17 +417,24 @@ public class MainActivity extends AppCompatActivity {
         playingbutton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                playing_sendMessage();
                 Intent myIntent = new Intent(MainActivity.this, PlayingActivity.class);
                 MainActivity.this.startActivity(myIntent);
+
             }
-        }); 
-
-
+        });
     }
 
-    public void getSongPlaying() {
-        //track = remoteService.getTrack();
-        //currentsong.setText(track.name + "by" + track.artist);
+    // Send a message to the playing activity
+    private void playing_sendMessage() {
+        Intent intent = new Intent("playing-activity");
+        // add data
+        ArrayList<String> songinformation = new ArrayList<String>();
+        songinformation.add(remoteService.track.name);
+        songinformation.add(remoteService.track.artist.name);
+
+        intent.putStringArrayListExtra("playing",  songinformation);
+        LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
     }
 }
 

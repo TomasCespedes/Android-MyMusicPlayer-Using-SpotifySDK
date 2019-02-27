@@ -6,7 +6,6 @@ import android.os.Binder;
 import android.os.IBinder;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
-import android.widget.TextView;
 
 import com.spotify.android.appremote.api.ConnectionParams;
 import com.spotify.android.appremote.api.Connector;
@@ -14,6 +13,8 @@ import com.spotify.android.appremote.api.SpotifyAppRemote;
 import com.spotify.protocol.client.Subscription;
 import com.spotify.protocol.types.PlayerState;
 import com.spotify.protocol.types.Track;
+
+import java.util.ArrayList;
 
 public class RemoteService extends Service {
     // Client ID and Redirect URI gotten from Spotify
@@ -113,67 +114,78 @@ public class RemoteService extends Service {
      */
     public void connected() {
         // Play a song
-        mSpotifyAppRemote.getPlayerApi().play("spotify:track:5274I4mUMnYczyeXkGDWZN");
         connected = true;
 
         subscribetoPlayerState();
 
+
+
     }
 
-    /**
-     * Get the track that is currently playing
-     * @return track
-     */
+    // Subscribe to the player's state
+    // Updates us when there is a change in the song and sends it over to the main activity.
     private void subscribetoPlayerState() {
-
         mSpotifyAppRemote.getPlayerApi().subscribeToPlayerState().setEventCallback(
                 new Subscription.EventCallback<PlayerState>() {
                     @Override
                     public void onEvent(PlayerState playerState) {
                         track = playerState.track;
-                        sendMessage();
+
+                        // Send song information to MainActivity when it starts
+                        main_sendMessage();
                     }
                 }
         );
     }
 
-    private void sendMessage() {
-        Intent intent = new Intent("my-event");
+    // Send a message to main-activity
+    private void main_sendMessage() {
+        Intent intent = new Intent("main-activity");
         // add data
+        ArrayList<String> songinformation = new ArrayList<String>();
+        songinformation.add(track.name);
+        songinformation.add(track.artist.name);
 
-        intent.putExtra("track-name", track.name + " by " + track.artist.name);
+        intent.putStringArrayListExtra("track-info",  songinformation);
         LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
     }
 
+    // Pause the song
     public void pause() {
         mSpotifyAppRemote.getPlayerApi().pause();
         songstatustracker = false;
     }
 
+    // Resume the song
     public void resume() {
         mSpotifyAppRemote.getPlayerApi().resume();
         songstatustracker = true;
     }
 
+    // Skip to the next song
     public void next() {
         mSpotifyAppRemote.getPlayerApi().skipNext();
         songstatustracker = true;
     }
 
+    // Go to previous song
     public void previous() {
         mSpotifyAppRemote.getPlayerApi().skipPrevious();
         songstatustracker = true;
     }
 
+    // Play any song
     public void play(String songuri) {
         mSpotifyAppRemote.getPlayerApi().play(songuri);
         songstatustracker = true;
     }
 
+    // Return whether a song is playing or not
     public boolean songstatus() {
         return songstatustracker;
     }
 
+    // Disconnect from the app
     public void disconnect() {
         // Disconnect from app
         SpotifyAppRemote.disconnect(mSpotifyAppRemote);

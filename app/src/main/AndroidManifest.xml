@@ -11,7 +11,11 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".MainActivity">
+
+        <!-- Main Activity -->
+        <activity android:name=".MainActivity"
+            android:alwaysRetainTaskState="true"
+            android:launchMode="singleInstance">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -21,9 +25,24 @@
         <activity
             android:name="com.spotify.sdk.android.authentication.LoginActivity"
             android:theme="@android:style/Theme.Translucent.NoTitleBar" />
-        <activity android:name=".PlayingActivity" />
-        <activity android:name=".SearchActivity" />
-        <activity android:name=".LibraryActivity" />
+
+        <!-- Playing activity-->
+        <activity android:name=".PlayingActivity"
+            android:alwaysRetainTaskState="true"
+            android:launchMode="singleInstance"
+            />
+
+        <!-- Search activity -->
+        <activity android:name=".SearchActivity"
+            android:alwaysRetainTaskState="true"
+            android:launchMode="singleInstance"
+            />
+
+        <!-- Library Activity -->
+        <activity android:name=".LibraryActivity"
+            android:alwaysRetainTaskState="true"
+            android:launchMode="singleInstance"
+            />
 
         <service
             android:name=".RemoteService"
