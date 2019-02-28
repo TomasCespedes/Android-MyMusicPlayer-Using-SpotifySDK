@@ -14,9 +14,7 @@ import com.spotify.android.appremote.api.SpotifyAppRemote;
 
 public class SearchActivity extends AppCompatActivity {
 
-    /**
-     * Bottom menu Buttons
-     */
+
     // TextViews
     private TextView currentsong;
     // Buttons
@@ -49,9 +47,7 @@ public class SearchActivity extends AppCompatActivity {
         librarybutton = findViewById(R.id.librarybtn);
         playingbutton = findViewById(R.id.playingbtn);
 
-        /**
-         * Buttons for bottom menu to create new activities
-         */
+
         // Home button to create a new activity
         homebutton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -59,6 +55,7 @@ public class SearchActivity extends AppCompatActivity {
                 Intent openMainActivity= new Intent(SearchActivity.this, MainActivity.class);
                 openMainActivity.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
                 startActivityIfNeeded(openMainActivity, 0);
+                finish();
             }
         });
 
@@ -67,6 +64,7 @@ public class SearchActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 startActivity(new Intent(SearchActivity.this, SearchActivity.class));
+                finish();
             }
         });
 
@@ -75,6 +73,7 @@ public class SearchActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 startActivity(new Intent(SearchActivity.this, LibraryActivity.class));
+                finish();
             }
         });
 
@@ -83,12 +82,11 @@ public class SearchActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 startActivity(new Intent(SearchActivity.this, PlayingActivity.class));
+                finish();
             }
         });
 
-        /**
-         * Button to play and pause the song
-         */
+        // Button to play and pause the song
         playpausebutton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

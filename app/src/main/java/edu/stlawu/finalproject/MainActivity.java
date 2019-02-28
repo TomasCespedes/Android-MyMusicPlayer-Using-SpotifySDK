@@ -390,8 +390,7 @@ public class MainActivity extends AppCompatActivity {
         homebutton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent myIntent = new Intent(MainActivity.this, MainActivity.class);
-                MainActivity.this.startActivity(myIntent);
+                // Do nothing :D
             }
         });
 
@@ -399,8 +398,10 @@ public class MainActivity extends AppCompatActivity {
         searchbutton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                sendMessage("search-activity", "search");
                 Intent myIntent = new Intent(MainActivity.this, SearchActivity.class);
                 MainActivity.this.startActivity(myIntent);
+                finish();
             }
         });
 
@@ -408,8 +409,10 @@ public class MainActivity extends AppCompatActivity {
         librarybutton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                sendMessage("library-activity", "library");
                 Intent myIntent = new Intent(MainActivity.this, LibraryActivity.class);
                 MainActivity.this.startActivity(myIntent);
+                finish();
             }
         });
 
@@ -417,23 +420,24 @@ public class MainActivity extends AppCompatActivity {
         playingbutton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                playing_sendMessage();
+                sendMessage("playing-activity", "track-info");
                 Intent myIntent = new Intent(MainActivity.this, PlayingActivity.class);
                 MainActivity.this.startActivity(myIntent);
+                finish();
 
             }
         });
     }
 
     // Send a message to the playing activity
-    private void playing_sendMessage() {
-        Intent intent = new Intent("playing-activity");
+    private void sendMessage(String action, String name) {
+        Intent intent = new Intent(action);
         // add data
         ArrayList<String> songinformation = new ArrayList<String>();
         songinformation.add(remoteService.track.name);
         songinformation.add(remoteService.track.artist.name);
 
-        intent.putStringArrayListExtra("playing",  songinformation);
+        intent.putStringArrayListExtra(name,  songinformation);
         LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
     }
 }

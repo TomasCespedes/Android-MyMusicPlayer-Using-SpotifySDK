@@ -1,8 +1,16 @@
 package edu.stlawu.finalproject;
 
+import android.content.BroadcastReceiver;
+import android.content.ComponentName;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
+import android.content.ServiceConnection;
+import android.os.IBinder;
+import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageButton;
@@ -10,6 +18,8 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.spotify.android.appremote.api.SpotifyAppRemote;
+
+import java.util.ArrayList;
 
 public class LibraryActivity extends AppCompatActivity {
 
@@ -27,12 +37,56 @@ public class LibraryActivity extends AppCompatActivity {
     // ImageViews
     private ImageView song_iv;
 
-    private SpotifyAppRemote mSpotifyAppRemote;
+    // ServiceConnection
+    RemoteService remoteService;
+    boolean service_isBound = false;
+    boolean register_isBound = false;
+
+    // Remote service connection set up
+    public ServiceConnection serviceConnection = new ServiceConnection() {
+
+        @Override
+        public void onServiceConnected(ComponentName name, IBinder service) {
+            RemoteService.MyBinder binder = (RemoteService.MyBinder) service;
+            remoteService = binder.getService();
+            service_isBound = true;
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName name) {
+            remoteService = null;
+            service_isBound = false;
+        }
+    };
+
+    // Song information trackers
+    private String tempsong, tempart;
+
+    // handler for received Intents for the "my-event" event
+    private BroadcastReceiver mMessageReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            // Extract data included in the Intent
+            ArrayList<String> message = intent.getStringArrayListExtra("track-info");
+
+            // Log message
+            Log.d("receiver-library", "Got message: " + message);
+
+            // Save the song's information
+            tempsong = message.get(0);
+            tempart = message.get(1);
+            currentsong.setText((tempsong + " by " + tempart));
+        }
+
+    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_library);
+
+        // Connect to the Remote Service
+        bindService(new Intent(this, RemoteService.class), serviceConnection, Context.BIND_AUTO_CREATE);
     }
 
     @Override
@@ -57,8 +111,10 @@ public class LibraryActivity extends AppCompatActivity {
         homebutton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                sendMessage("main-activity", "track-info");
                 Intent myIntent = new Intent(LibraryActivity.this, MainActivity.class);
                 LibraryActivity.this.startActivity(myIntent);
+                finish();
             }
         });
 
@@ -66,8 +122,10 @@ public class LibraryActivity extends AppCompatActivity {
         searchbutton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                sendMessage("search-activity", "track-info");
                 Intent myIntent = new Intent(LibraryActivity.this, SearchActivity.class);
                 LibraryActivity.this.startActivity(myIntent);
+                finish();
             }
         });
 
@@ -75,8 +133,7 @@ public class LibraryActivity extends AppCompatActivity {
         librarybutton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent myIntent = new Intent(LibraryActivity.this, LibraryActivity.class);
-                LibraryActivity.this.startActivity(myIntent);
+                // Do nothing
             }
         });
 
@@ -84,8 +141,10 @@ public class LibraryActivity extends AppCompatActivity {
         playingbutton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                sendMessage("playing-activity", "track-info");
                 Intent myIntent = new Intent(LibraryActivity.this, PlayingActivity.class);
                 LibraryActivity.this.startActivity(myIntent);
+                finish();
             }
         });
 
@@ -100,16 +159,76 @@ public class LibraryActivity extends AppCompatActivity {
                 if (currenttracker == "play") {
                     playpausebutton.setImageResource(R.drawable.playbutton);
                     currenttracker = "pause";
-                    mSpotifyAppRemote.getPlayerApi().pause();
                 }
                 // If song is currently paused, play it
                 else if (currenttracker == "pause") {
                     playpausebutton.setImageResource(R.drawable.pausebutton);
                     currenttracker = "play";
-                    mSpotifyAppRemote.getPlayerApi().resume();
+
 
                 }
             }
         });
     }
+
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+
+        // Register mMessageReceiver to receive messages.
+        // This is to send information from service.
+        if (!register_isBound) {
+            LocalBroadcastManager.getInstance(this).registerReceiver(mMessageReceiver,
+                    new IntentFilter("library-activity"));
+            register_isBound = true;
+        }
+
+        // Register the service to control the spotify remote
+        if (!service_isBound) {
+            // Connect to the Remote Service
+            bindService(new Intent(this, RemoteService.class), serviceConnection, Context.BIND_AUTO_CREATE);
+        }
+
+
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+
+        // Unregister message receiver to prevent data leaks
+        LocalBroadcastManager.getInstance(this).unregisterReceiver(mMessageReceiver);
+        register_isBound = false;
+
+        // Unbind the service to prevent data leaks
+        unbindService(serviceConnection);
+        service_isBound = false;
+
+    }
+
+
+    // Send message to the activities about the song that is playing
+    private void sendMessage(String action, String name) {
+        // Create a new main-activity intent
+        Intent intent = new Intent(action);
+
+        // Array to hold data
+        ArrayList<String> songinformation = new ArrayList<String>();
+
+        // Add song and artist names
+        songinformation.add(tempsong);
+        songinformation.add(tempart);
+
+        // Send the message
+        intent.putStringArrayListExtra(name,  songinformation);
+        LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
+    }
+
+
+
+
+
+
 }

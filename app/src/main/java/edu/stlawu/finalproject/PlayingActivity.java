@@ -19,9 +19,6 @@ import android.widget.ImageView;
 import android.widget.SeekBar;
 import android.widget.TextView;
 
-import com.spotify.android.appremote.api.SpotifyAppRemote;
-import com.spotify.protocol.types.Track;
-
 import java.util.ArrayList;
 
 public class PlayingActivity extends AppCompatActivity {
@@ -46,7 +43,6 @@ public class PlayingActivity extends AppCompatActivity {
     // Volume Controls
     private SeekBar volumeSeekbar;
     private AudioManager audioManager;
-    private SpotifyAppRemote mSpotifyAppRemote;
 
     // ServiceConnection
     RemoteService remoteService;
@@ -77,8 +73,8 @@ public class PlayingActivity extends AppCompatActivity {
     private BroadcastReceiver mMessageReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            // Extract data included in the Intent
-            ArrayList<String> message = intent.getStringArrayListExtra("playing");
+            // Extract data included in the Intent (for track information)
+            ArrayList<String> message = intent.getStringArrayListExtra("track-info");
             Log.d("receiver-playing", "Got message: " + message);
 
             // Save the song's information
@@ -105,6 +101,10 @@ public class PlayingActivity extends AppCompatActivity {
         // Connect to the Remote Service
         bindService(new Intent(this, RemoteService.class), serviceConnection, Context.BIND_AUTO_CREATE);
 
+        // Register the receiver
+        LocalBroadcastManager.getInstance(this).registerReceiver(mMessageReceiver,
+                new IntentFilter("main-activity"));
+        register_isBound = true;
 
 
     }
@@ -178,9 +178,10 @@ public class PlayingActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 // Send information to the main activity and start the activity
-                main_sendMessage();
+                sendMessage("main-activity", "track-info");
                 Intent myIntent = new Intent(PlayingActivity.this, MainActivity.class);
                 PlayingActivity.this.startActivity(myIntent);
+                finish();
             }
         });
 
@@ -188,8 +189,10 @@ public class PlayingActivity extends AppCompatActivity {
         searchbutton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                sendMessage("search-activity", "track-info");
                 Intent myIntent = new Intent(PlayingActivity.this, SearchActivity.class);
                 PlayingActivity.this.startActivity(myIntent);
+                finish();
             }
         });
 
@@ -197,8 +200,10 @@ public class PlayingActivity extends AppCompatActivity {
         librarybutton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent myIntent = new Intent(PlayingActivity.this, LibraryActivity.class);
+                sendMessage("library-activity", "track-info");
+                Intent myIntent = new Intent(v.getContext(), LibraryActivity.class);
                 PlayingActivity.this.startActivity(myIntent);
+                finish();
             }
         });
 
@@ -206,8 +211,7 @@ public class PlayingActivity extends AppCompatActivity {
         playingbutton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent myIntent = new Intent(PlayingActivity.this, PlayingActivity.class);
-                PlayingActivity.this.startActivity(myIntent);
+                // Do nothing :D
             }
         });
 
@@ -289,9 +293,9 @@ public class PlayingActivity extends AppCompatActivity {
     }
 
     // Send message to the main-activity
-    private void main_sendMessage() {
+    private void sendMessage(String action, String name) {
         // Create a new main-activity intent
-        Intent intent = new Intent("main-activity");
+        Intent intent = new Intent(action);
 
         // Array to hold data
         ArrayList<String> songinformation = new ArrayList<String>();
@@ -301,7 +305,7 @@ public class PlayingActivity extends AppCompatActivity {
         songinformation.add(tempart);
 
         // Send the message
-        intent.putStringArrayListExtra("track-info",  songinformation);
+        intent.putStringArrayListExtra(name,  songinformation);
         LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
     }
 
