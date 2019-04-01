@@ -6,6 +6,9 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
+import android.graphics.Bitmap;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
 import android.media.AudioManager;
 import android.os.IBinder;
 import android.support.v4.content.LocalBroadcastManager;
@@ -18,6 +21,8 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.SeekBar;
 import android.widget.TextView;
+
+import com.spotify.protocol.client.CallResult;
 
 import java.util.ArrayList;
 
@@ -80,7 +85,29 @@ public class PlayingActivity extends AppCompatActivity {
             // Save the song's information
             tempsong = message.get(0);
             tempart = message.get(1);
-            currentsong.setText((tempsong + " by " + tempart));
+            currentsong.setText((tempsong + "\n by " + tempart));
+
+            remoteService.getImageBitmap().setResultCallback(new CallResult.ResultCallback<Bitmap>() {
+                @Override
+                public void onResult(Bitmap bitmap) {
+                    Drawable d = new BitmapDrawable(getResources(), bitmap);
+                    song_iv.setImageDrawable(d);
+                }
+            });
+//                             */
+//                              //
+////                            mSpotifyAppRemote.getImagesApi().getImage(track.imageUri)
+////                                    .setResultCallback(new CallResult.ResultCallback<Bitmap>() {
+////                                        @Override
+////                                        public void onResult(Bitmap bitmap) {
+////                                            Drawable d = new BitmapDrawable(getResources(), bitmap);
+////                                            song_iv.setImageDrawable(d);
+////                                        }
+////                                    });
+
+
+
+
         }
 
     };
@@ -125,6 +152,9 @@ public class PlayingActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
+
+        //init();
+        //initButtons();
 
         // Register mMessageReceiver to receive messages.
         // This is to send information from service.

@@ -2,15 +2,21 @@ package edu.stlawu.finalproject;
 
 import android.app.Service;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
 import android.os.Binder;
 import android.os.IBinder;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
+import android.widget.ImageView;
 
 import com.spotify.android.appremote.api.ConnectionParams;
 import com.spotify.android.appremote.api.Connector;
 import com.spotify.android.appremote.api.SpotifyAppRemote;
+import com.spotify.protocol.client.CallResult;
 import com.spotify.protocol.client.Subscription;
+import com.spotify.protocol.types.ImageUri;
 import com.spotify.protocol.types.PlayerState;
 import com.spotify.protocol.types.Track;
 
@@ -143,8 +149,10 @@ public class RemoteService extends Service {
         Intent intent = new Intent("main-activity");
         // add data
         ArrayList<String> songinformation = new ArrayList<String>();
+
         songinformation.add(track.name);
         songinformation.add(track.artist.name);
+        songinformation.add(track.imageUri.toString());
 
         intent.putStringArrayListExtra("track-info",  songinformation);
         LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
@@ -191,6 +199,21 @@ public class RemoteService extends Service {
         SpotifyAppRemote.disconnect(mSpotifyAppRemote);
     }
 
+    public void setImageView(ImageUri trackuri, final ImageView song_iv) {
+        mSpotifyAppRemote.getImagesApi().getImage(trackuri)
+        .setResultCallback(new CallResult.ResultCallback<Bitmap>() {
+            @Override
+            public void onResult(Bitmap bitmap) {
+                Drawable d = new BitmapDrawable(getResources(), bitmap);
+                song_iv.setImageDrawable(d);
+            }
+        });
+    }
+
+    public CallResult<Bitmap> getImageBitmap() {
+        return mSpotifyAppRemote.getImagesApi().getImage(track.imageUri);
+
+    }
 
 
 

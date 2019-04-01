@@ -94,7 +94,7 @@ public class LibraryActivity extends AppCompatActivity {
         super.onStart();
 
         // Find views
-        currentsong = findViewById(R.id.current_song);
+        currentsong = findViewById(R.id.current_song1);
         playpausebutton = findViewById(R.id.current_button);
         song_iv = findViewById(R.id.song_iv);
 

@@ -9,9 +9,9 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:orientation="vertical"
+        android:background="@drawable/my_app_bg"
         android:gravity="center"
-        android:background="#808080">
+        android:orientation="vertical">
 
 
         <!--Image view for Song picture -->
@@ -19,22 +19,23 @@
             android:id="@+id/songPicture"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:paddingBottom="25dp"/>
+            android:background="@drawable/image_borders"/>
 
         <SeekBar
+            android:id="@+id/volumebar"
             android:layout_width="400dp"
             android:layout_height="wrap_content"
-            android:padding="50dp"
-            android:id="@+id/volumebar"/>
+            android:padding="50dp" />
 
         <!-- Text View for song information -->
         <TextView
             android:id="@+id/songName"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:gravity="center_horizontal"
             android:text=""
-            android:textSize="50sp"/>
-
+            android:textSize="40sp" />
 
 
         <!--Linear layout for Prev/current/Next buttons -->
@@ -49,29 +50,26 @@
                 android:id="@+id/prevSong"
                 android:layout_width="100dp"
                 android:layout_height="100dp"
-                android:background="@drawable/backarrow"
-                 />
+                android:background="@drawable/backarrow" />
 
             <!-- Play/Pause Button -->
             <ImageButton
                 android:id="@+id/playingPauseStop"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:maxWidth="110dp"
-                android:maxHeight="110dp"
-                android:src="@drawable/pausebutton"
-                android:scaleType="fitCenter"
                 android:adjustViewBounds="true"
-                android:background="#808080"
-                />
+                android:maxHeight="110dp"
+                android:maxWidth="110dp"
+                android:background="@android:color/transparent"
+                android:scaleType="fitCenter"
+                android:src="@drawable/pausebutton" />
 
             <!-- Next Song Button -->
             <ImageButton
                 android:id="@+id/nextSong"
                 android:layout_width="100dp"
                 android:layout_height="100dp"
-                android:background="@drawable/nextarrow"
-                />
+                android:background="@drawable/nextarrow" />
 
         </LinearLayout>
 

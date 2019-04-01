@@ -12,7 +12,7 @@
         android:layout_height="match_parent"
         android:gravity="center"
         android:orientation="vertical"
-        android:background="#808080">
+        android:background="@drawable/my_app_bg">
 
         <ImageView
             android:id="@+id/song_iv"

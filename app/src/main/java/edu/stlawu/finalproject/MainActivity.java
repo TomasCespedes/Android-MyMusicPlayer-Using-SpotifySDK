@@ -1,5 +1,6 @@
 package edu.stlawu.finalproject;
 
+import com.spotify.protocol.types.ImageUri;
 import com.spotify.protocol.types.Track;
 import com.spotify.sdk.android.authentication.AuthenticationClient;
 import com.spotify.sdk.android.authentication.AuthenticationRequest;
@@ -19,6 +20,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import java.util.ArrayList;
@@ -53,6 +55,8 @@ public class MainActivity extends AppCompatActivity {
     // TextViews
     public static TextView currentsong;
 
+    public ImageView song_iv;
+
     // Buttons
     private ImageButton playpausebutton;
     private Button homebutton, searchbutton, librarybutton, playingbutton;
@@ -74,6 +78,7 @@ public class MainActivity extends AppCompatActivity {
     // Remote service connection set up
     public ServiceConnection serviceConnection = new ServiceConnection() {
 
+        // Service successfully connected
         @Override
         public void onServiceConnected(ComponentName name, IBinder service) {
             RemoteService.MyBinder binder = (RemoteService.MyBinder) service;
@@ -81,6 +86,7 @@ public class MainActivity extends AppCompatActivity {
             service_isBound = true;
         }
 
+        // Service was disconnected
         @Override
         public void onServiceDisconnected(ComponentName name) {
             remoteService = null;
@@ -100,7 +106,7 @@ public class MainActivity extends AppCompatActivity {
             tempsong = message.get(0);
             tempart = message.get(1);
 
-
+            // Set the textview to appropriate data values
             currentsong.setText((tempsong + " by " + tempart));
         }
 
@@ -122,6 +128,7 @@ public class MainActivity extends AppCompatActivity {
         // Register the receiver
         LocalBroadcastManager.getInstance(this).registerReceiver(mMessageReceiver,
                 new IntentFilter("main-activity"));
+        // Update boolean tracker
         reciever_isbound = true;
 
 
@@ -166,6 +173,7 @@ public class MainActivity extends AppCompatActivity {
         );
     }
 
+    // When app gets resumed
     @Override
     protected void onResume() {
         super.onResume();
@@ -189,6 +197,7 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
+    // If activity is paused
     @Override
     protected void onPause() {
         super.onPause();
@@ -205,9 +214,8 @@ public class MainActivity extends AppCompatActivity {
 
 
 
-    /**
-     * Method to open the Login Activity and get the Token
-     */
+    // Method to get the authentication token to be able
+    // to use the web API wrapped
     private void getToken() {
         AuthenticationRequest.Builder builder =
                 new AuthenticationRequest.Builder(CLIENT_ID, AuthenticationResponse.Type.TOKEN, REDIRECT_URI);
@@ -299,21 +307,6 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-//    /**
-//     * Our app is connected to spotify and streaming
-//     * can now happen.
-//     */
-//    private void connected() {
-//        // Play a playlist
-//        mSpotifyAppRemote.getPlayerApi().play("spotify:track:0VgkVdmE4gld66l8iyGjgx");
-//
-//
-//        // Call the subscribe to Playerstate Method
-//        subscribetoPlayerState();
-//
-//    }
-
-
     /**
      *Subscribe to PlayerState and get current playing information
      * Uses the Spotify Remote
@@ -339,24 +332,21 @@ public class MainActivity extends AppCompatActivity {
 //                            /**
 //                             * Get Image for the track
 //                             */
-//
-//
-//                            mSpotifyAppRemote.getImagesApi().getImage(track.imageUri)
-//                                    .setResultCallback(new CallResult.ResultCallback<Bitmap>() {
-//                                        @Override
-//                                        public void onResult(Bitmap bitmap) {
-//                                            Drawable d = new BitmapDrawable(getResources(), bitmap);
-//                                            song_iv.setImageDrawable(d);
-//                                        }
-//                                    });
+//                              //
+////                            mSpotifyAppRemote.getImagesApi().getImage(track.imageUri)
+////                                    .setResultCallback(new CallResult.ResultCallback<Bitmap>() {
+////                                        @Override
+////                                        public void onResult(Bitmap bitmap) {
+////                                            Drawable d = new BitmapDrawable(getResources(), bitmap);
+////                                            song_iv.setImageDrawable(d);
+////                                        }
+////                                    });
 //                        }
 //                    }
 //                });
 //   }
 
-    /**
-     * When app stops, disconnect app from Spotify
-     */
+    // App is stopped
     @Override
     protected void onStop() {
         super.onStop();
@@ -365,10 +355,9 @@ public class MainActivity extends AppCompatActivity {
         remoteService.disconnect();
     }
 
-    /**
-     * Initialize all views and fields
-     */
+    // Initialize all the views and anything else we need
     private void init() {
+        // TODO 1 if track name is null, when calling a new activity will cause an error
 
         // Find all the views for current song, play/pause button,
         // and the song image view
@@ -377,7 +366,7 @@ public class MainActivity extends AppCompatActivity {
         playpausebutton = findViewById(R.id.current_button);
 
         // Get rid of this and it's variables
-        //song_iv = findViewById(R.id.song_iv);
+        song_iv = findViewById(R.id.song_iv);
 
 
         // Get all the Button views for the navigation menu at bottom
@@ -390,10 +379,11 @@ public class MainActivity extends AppCompatActivity {
         homebutton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                // Do nothing :D
+                // Do nothing :)
             }
         });
 
+        // TODO 1
         // Search button switch activity
         searchbutton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -430,6 +420,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     // Send a message to the playing activity
+    // TODO 1
     private void sendMessage(String action, String name) {
         Intent intent = new Intent(action);
         // add data
