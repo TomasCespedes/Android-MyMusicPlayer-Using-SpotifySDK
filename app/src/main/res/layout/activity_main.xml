@@ -38,7 +38,7 @@
             android:text=""
             android:textSize="50sp"
             android:textColor="#FFFFFF"
-            android:background="#808080"
+            android:background="@android:color/transparent"
             android:paddingRight="65dp"
             android:paddingBottom="50dp"
 

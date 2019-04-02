@@ -112,7 +112,7 @@ public class MainActivity extends AppCompatActivity {
 
     };
 
-
+    // OnCreate Method
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -122,8 +122,7 @@ public class MainActivity extends AppCompatActivity {
         init();
 
         // Connect to the Remote Service
-        Intent intent = new Intent(this, RemoteService.class);
-        bindService(intent, serviceConnection, Context.BIND_AUTO_CREATE);
+        bindService(new Intent(this, RemoteService.class), serviceConnection, Context.BIND_AUTO_CREATE);
 
         // Register the receiver
         LocalBroadcastManager.getInstance(this).registerReceiver(mMessageReceiver,
@@ -138,9 +137,6 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onStart() {
         super.onStart();
-
-        // TODO Foreground service is apparently what we want here.
-        // TODO http://codetheory.in/understanding-android-started-bound-services/
 
         // Call the method to get the token
         getToken();
@@ -234,6 +230,7 @@ public class MainActivity extends AppCompatActivity {
      * @param resultCode
      * @param intent
      */
+
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
         super.onActivityResult(requestCode, resultCode, intent);
@@ -307,45 +304,6 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-    /**
-     *Subscribe to PlayerState and get current playing information
-     * Uses the Spotify Remote
-     */
-//    private void subscribetoPlayerState() {
-//
-//        // Subscribe to PlayerState
-//
-//        mSpotifyAppRemote.getPlayerApi()
-//                .subscribeToPlayerState()
-//                .setEventCallback(new Subscription.EventCallback<PlayerState>() {
-//
-//
-//                    // If a song is playing get the track name and artist name
-//                    public void onEvent(PlayerState playerState) {
-//                        track = playerState.track;
-//
-//                        if (track != null) {
-//                            /**
-//                             * Set data to views (track name by track artist)
-//                             */
-//                            currentsong.setText((track.name + " by " + track.artist.name));
-//                            /**
-//                             * Get Image for the track
-//                             */
-//                              //
-////                            mSpotifyAppRemote.getImagesApi().getImage(track.imageUri)
-////                                    .setResultCallback(new CallResult.ResultCallback<Bitmap>() {
-////                                        @Override
-////                                        public void onResult(Bitmap bitmap) {
-////                                            Drawable d = new BitmapDrawable(getResources(), bitmap);
-////                                            song_iv.setImageDrawable(d);
-////                                        }
-////                                    });
-//                        }
-//                    }
-//                });
-//   }
-
     // App is stopped
     @Override
     protected void onStop() {
@@ -388,7 +346,7 @@ public class MainActivity extends AppCompatActivity {
         searchbutton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                sendMessage("search-activity", "search");
+                sendMessage("main-activity", "track-info");
                 Intent myIntent = new Intent(MainActivity.this, SearchActivity.class);
                 MainActivity.this.startActivity(myIntent);
                 finish();
@@ -399,7 +357,7 @@ public class MainActivity extends AppCompatActivity {
         librarybutton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                sendMessage("library-activity", "library");
+                sendMessage("main-activity", "track-info");
                 Intent myIntent = new Intent(MainActivity.this, LibraryActivity.class);
                 MainActivity.this.startActivity(myIntent);
                 finish();
@@ -410,11 +368,10 @@ public class MainActivity extends AppCompatActivity {
         playingbutton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                sendMessage("playing-activity", "track-info");
+                sendMessage("main-activity", "track-info");
                 Intent myIntent = new Intent(MainActivity.this, PlayingActivity.class);
                 MainActivity.this.startActivity(myIntent);
                 finish();
-
             }
         });
     }

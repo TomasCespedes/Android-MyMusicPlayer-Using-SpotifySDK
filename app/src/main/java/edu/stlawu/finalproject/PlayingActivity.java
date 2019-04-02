@@ -87,6 +87,7 @@ public class PlayingActivity extends AppCompatActivity {
             tempart = message.get(1);
             currentsong.setText((tempsong + "\n by " + tempart));
 
+            // Update the song view for the new cover of song.
             remoteService.getImageBitmap().setResultCallback(new CallResult.ResultCallback<Bitmap>() {
                 @Override
                 public void onResult(Bitmap bitmap) {
@@ -94,17 +95,6 @@ public class PlayingActivity extends AppCompatActivity {
                     song_iv.setImageDrawable(d);
                 }
             });
-//                             */
-//                              //
-////                            mSpotifyAppRemote.getImagesApi().getImage(track.imageUri)
-////                                    .setResultCallback(new CallResult.ResultCallback<Bitmap>() {
-////                                        @Override
-////                                        public void onResult(Bitmap bitmap) {
-////                                            Drawable d = new BitmapDrawable(getResources(), bitmap);
-////                                            song_iv.setImageDrawable(d);
-////                                        }
-////                                    });
-
 
 
 
@@ -143,7 +133,6 @@ public class PlayingActivity extends AppCompatActivity {
         init();
         initButtons();
 
-        //connectToRemote();
 
 
     }
@@ -160,7 +149,7 @@ public class PlayingActivity extends AppCompatActivity {
         // This is to send information from service.
         if (!register_isBound) {
             LocalBroadcastManager.getInstance(this).registerReceiver(mMessageReceiver,
-                    new IntentFilter("playing-activity"));
+                    new IntentFilter("main-activity"));
             register_isBound = true;
         }
 
@@ -188,11 +177,11 @@ public class PlayingActivity extends AppCompatActivity {
 
     private void init() {
         // Find views
-            // Song
+        // Song
         currentsong = findViewById(R.id.songName);
         song_iv = findViewById(R.id.songPicture);
 
-            // Buttons
+        // Buttons
         playpausebutton = findViewById(R.id.playingPauseStop);
         nextbutton = findViewById(R.id.nextSong);
         previousbutton = findViewById(R.id.prevSong);
@@ -219,7 +208,7 @@ public class PlayingActivity extends AppCompatActivity {
         searchbutton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                sendMessage("search-activity", "track-info");
+                sendMessage("main-activity", "track-info");
                 Intent myIntent = new Intent(PlayingActivity.this, SearchActivity.class);
                 PlayingActivity.this.startActivity(myIntent);
                 finish();
@@ -230,7 +219,7 @@ public class PlayingActivity extends AppCompatActivity {
         librarybutton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                sendMessage("library-activity", "track-info");
+                sendMessage("main-activity", "track-info");
                 Intent myIntent = new Intent(v.getContext(), LibraryActivity.class);
                 PlayingActivity.this.startActivity(myIntent);
                 finish();
