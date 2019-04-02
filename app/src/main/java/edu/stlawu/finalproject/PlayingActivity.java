@@ -28,20 +28,13 @@ import java.util.ArrayList;
 
 public class PlayingActivity extends AppCompatActivity {
 
-    // Client ID
-    // TODO do we need?
-    private static final String CLIENT_ID = "377538ebcf9e4cdb9c4b5373e62a53a3";
-    private static final String REDIRECT_URI = "FinalProjectCS450://callback";
-
     // TextViews
     private TextView currentsong;
 
-    // TODO
     // Buttons
     private ImageButton playpausebutton, nextbutton, previousbutton;
     private Button homebutton, searchbutton, librarybutton, playingbutton;
 
-    // TODO something with song view for cover art
     // ImageViews
     private ImageView song_iv;
 
@@ -63,7 +56,6 @@ public class PlayingActivity extends AppCompatActivity {
             remoteService = binder.getService();
             service_isBound = true;
         }
-
         @Override
         public void onServiceDisconnected(ComponentName name) {
             remoteService = null;
@@ -93,15 +85,12 @@ public class PlayingActivity extends AppCompatActivity {
                 public void onResult(Bitmap bitmap) {
                     Drawable d = new BitmapDrawable(getResources(), bitmap);
                     song_iv.setImageDrawable(d);
+
+
                 }
             });
-
-
-
         }
-
     };
-
 
 
     @Override
@@ -113,7 +102,7 @@ public class PlayingActivity extends AppCompatActivity {
         setVolumeControlStream(AudioManager.STREAM_MUSIC);
 
         // Initialize all variables
-        initControls();
+        initVolumeControls();
 
         // Connect to the Remote Service
         bindService(new Intent(this, RemoteService.class), serviceConnection, Context.BIND_AUTO_CREATE);
@@ -132,8 +121,6 @@ public class PlayingActivity extends AppCompatActivity {
 
         init();
         initButtons();
-
-
 
     }
 
@@ -197,7 +184,7 @@ public class PlayingActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 // Send information to the main activity and start the activity
-                sendMessage("main-activity", "track-info");
+                //sendMessage("main-activity", "track-info");
                 Intent myIntent = new Intent(PlayingActivity.this, MainActivity.class);
                 PlayingActivity.this.startActivity(myIntent);
                 finish();
@@ -208,7 +195,7 @@ public class PlayingActivity extends AppCompatActivity {
         searchbutton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                sendMessage("main-activity", "track-info");
+                //sendMessage("main-activity", "track-info");
                 Intent myIntent = new Intent(PlayingActivity.this, SearchActivity.class);
                 PlayingActivity.this.startActivity(myIntent);
                 finish();
@@ -219,7 +206,7 @@ public class PlayingActivity extends AppCompatActivity {
         librarybutton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                sendMessage("main-activity", "track-info");
+                //sendMessage("main-activity", "track-info");
                 Intent myIntent = new Intent(v.getContext(), LibraryActivity.class);
                 PlayingActivity.this.startActivity(myIntent);
                 finish();
@@ -237,7 +224,7 @@ public class PlayingActivity extends AppCompatActivity {
     }
 
     // Volume bar and audio manager setup
-    private void initControls() {
+    private void initVolumeControls() {
         try
         {
             volumeSeekbar = (SeekBar)findViewById(R.id.volumebar);
@@ -307,127 +294,24 @@ public class PlayingActivity extends AppCompatActivity {
                 }
             }
         });
-
-
     }
 
+    // Old send message function
     // Send message to the main-activity
-    private void sendMessage(String action, String name) {
-        // Create a new main-activity intent
-        Intent intent = new Intent(action);
-
-        // Array to hold data
-        ArrayList<String> songinformation = new ArrayList<String>();
-
-        // Add song and artist names
-        songinformation.add(tempsong);
-        songinformation.add(tempart);
-
-        // Send the message
-        intent.putStringArrayListExtra(name,  songinformation);
-        LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
-    }
-
-//    private void connectToRemote() {
-//        /**
-//         * Set the connection parameters
-//         */
-//        ConnectionParams connectionParams =
-//                new ConnectionParams.Builder(CLIENT_ID)
-//                        .setRedirectUri(REDIRECT_URI)
-//                        .showAuthView(true)
-//                        .build();
+//    private void sendMessage(String action, String name) {
+//        // Create a new main-activity intent
+//        Intent intent = new Intent(action);
 //
-//        /**
-//         * Connect app to remote
-//         */
-//        SpotifyAppRemote.connect(this, connectionParams,
-//                new Connector.ConnectionListener() {
+//        // Array to hold data
+//        ArrayList<String> songinformation = new ArrayList<String>();
 //
-//                    @Override
-//                    public void onConnected(SpotifyAppRemote spotifyAppRemote) {
-//                        mSpotifyAppRemote = spotifyAppRemote;
-//                        Log.d("MainActivity", "Connected! Yay!");
+//        // Add song and artist names
+//        songinformation.add(tempsong);
+//        songinformation.add(tempart);
 //
-//                        // Now you can start interacting with App Remote
-//                        connected();
-//                    }
-//
-//                    @Override
-//                    public void onFailure(Throwable throwable) {
-//                        Log.e("MainActivity", throwable.getMessage(), throwable);
-//
-//                        // Something went wrong when attempting to connect! Handle errors here
-//                    }
-//                });
+//        // Send the message
+//        intent.putStringArrayListExtra(name,  songinformation);
+//        LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
 //    }
-//
-//    private void connected() {
-//
-//        /**
-//         * Subscribe to playerstate in order to get song information
-//         */
-//        mSpotifyAppRemote.getPlayerApi().subscribeToPlayerState()
-//                .setEventCallback(new Subscription.EventCallback<PlayerState>()
-//             {
-//                 @Override
-//                 public void onEvent(PlayerState playerState) {
-//                     track = playerState.track;
-//                     if (track != null) {
-//                         /**
-//                          * Set data to views (track name by track artist)
-//                          */
-//                         currentsong.setText((track.name + " by " + track.artist.name));
-//                         /**
-//                          * Get Image for the track
-//                          */
-//                         mSpotifyAppRemote.getImagesApi().getImage(track.imageUri)
-//                                 .setResultCallback(new CallResult.ResultCallback<Bitmap>() {
-//                                     @Override
-//                                     public void onResult(Bitmap bitmap) {
-//                                         Drawable d = new BitmapDrawable(getResources(), bitmap);
-//                                         song_iv.setImageDrawable(d);
-//                                     }
-//                                 });
-//                     }
-//                 }
-//             }
-//
-//            );
-//
-//        /**
-//         * Button to play and pause the song
-//         */
-//        playpausebutton.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//
-//                // If song is currently playing, pause it
-//                if (currenttracker == "play") {
-//                    playpausebutton.setImageResource(R.drawable.playbutton);
-//                    currenttracker = "pause";
-//                    mSpotifyAppRemote.getPlayerApi().pause();
-//                }
-//                // If song is currently paused, play it
-//                else if (currenttracker == "pause") {
-//                    playpausebutton.setImageResource(R.drawable.pausebutton);
-//
-//                    currenttracker = "play";
-//                    mSpotifyAppRemote.getPlayerApi().resume();
-//
-//                }
-//            }
-//        });
-//
-//        /**
-//         * Button to play the next song
-//         */
-//
-//        nextbutton.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                mSpotifyAppRemote.getPlayerApi().skipNext();
-//            }
-//        });
-//    }
+
 }

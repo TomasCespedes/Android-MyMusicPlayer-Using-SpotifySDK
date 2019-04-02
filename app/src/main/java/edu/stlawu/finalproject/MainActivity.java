@@ -1,11 +1,9 @@
 package edu.stlawu.finalproject;
 
-import com.spotify.protocol.types.ImageUri;
 import com.spotify.protocol.types.Track;
 import com.spotify.sdk.android.authentication.AuthenticationClient;
 import com.spotify.sdk.android.authentication.AuthenticationRequest;
 import com.spotify.sdk.android.authentication.AuthenticationResponse;
-
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
@@ -63,7 +61,7 @@ public class MainActivity extends AppCompatActivity {
 
 
     private SpotifyApi api = new SpotifyApi();
-    private SpotifyService spotifyService;
+    private SpotifyService spotifyWebService;
 
     // ServiceConnection
     RemoteService remoteService;
@@ -72,7 +70,6 @@ public class MainActivity extends AppCompatActivity {
 
     // Temp variables for testing
     public String tempsong, tempart;
-
 
 
     // Remote service connection set up
@@ -141,7 +138,6 @@ public class MainActivity extends AppCompatActivity {
         // Call the method to get the token
         getToken();
 
-
         // Playing / Pause buttton listener on main page
         playpausebutton.setOnClickListener(new View.OnClickListener() {
                    @Override
@@ -190,7 +186,6 @@ public class MainActivity extends AppCompatActivity {
                     new IntentFilter("main-activity"));
             reciever_isbound = true;
         }
-
     }
 
     // If activity is paused
@@ -249,10 +244,10 @@ public class MainActivity extends AppCompatActivity {
 
                     // Set the Access token so we can use API
                     api.setAccessToken(accessToken);
-                    spotifyService = api.getService();
+                    spotifyWebService = api.getService();
 
                     // Get "MY" playlists
-                    spotifyService.getMyPlaylists(new SpotifyCallback<Pager<PlaylistSimple>>() {
+                    spotifyWebService.getMyPlaylists(new SpotifyCallback<Pager<PlaylistSimple>>() {
                         // Request failed
                         @Override
                         public void failure(SpotifyError spotifyError) {
@@ -315,7 +310,6 @@ public class MainActivity extends AppCompatActivity {
 
     // Initialize all the views and anything else we need
     private void init() {
-        // TODO 1 if track name is null, when calling a new activity will cause an error
 
         // Find all the views for current song, play/pause button,
         // and the song image view
@@ -346,7 +340,7 @@ public class MainActivity extends AppCompatActivity {
         searchbutton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                sendMessage("main-activity", "track-info");
+                //sendMessage("main-activity", "track-info");
                 Intent myIntent = new Intent(MainActivity.this, SearchActivity.class);
                 MainActivity.this.startActivity(myIntent);
                 finish();
@@ -357,7 +351,7 @@ public class MainActivity extends AppCompatActivity {
         librarybutton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                sendMessage("main-activity", "track-info");
+                //sendMessage("main-activity", "track-info");
                 Intent myIntent = new Intent(MainActivity.this, LibraryActivity.class);
                 MainActivity.this.startActivity(myIntent);
                 finish();
@@ -368,7 +362,7 @@ public class MainActivity extends AppCompatActivity {
         playingbutton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                sendMessage("main-activity", "track-info");
+                //sendMessage("main-activity", "track-info");
                 Intent myIntent = new Intent(MainActivity.this, PlayingActivity.class);
                 MainActivity.this.startActivity(myIntent);
                 finish();
@@ -376,17 +370,17 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
+    // Old send message function
     // Send a message to the playing activity
-    // TODO 1
-    private void sendMessage(String action, String name) {
-        Intent intent = new Intent(action);
-        // add data
-        ArrayList<String> songinformation = new ArrayList<String>();
-        songinformation.add(remoteService.track.name);
-        songinformation.add(remoteService.track.artist.name);
-
-        intent.putStringArrayListExtra(name,  songinformation);
-        LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
-    }
+//    private void sendMessage(String action, String name) {
+//        Intent intent = new Intent(action);
+//        // add data
+//        ArrayList<String> songinformation = new ArrayList<String>();
+//        songinformation.add(remoteService.track.name);
+//        songinformation.add(remoteService.track.artist.name);
+//
+//        intent.putStringArrayListExtra(name,  songinformation);
+//        LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
+//    }
 }
 

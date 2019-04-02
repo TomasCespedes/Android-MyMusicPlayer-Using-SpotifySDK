@@ -183,22 +183,23 @@ public class LibraryActivity extends AppCompatActivity {
         }
     }
 
+    // Old send message function
     // Send message to the activities about the song that is playing
-    private void sendMessage(String action, String name) {
-        // Create a new main-activity intent
-        Intent intent = new Intent(action);
-
-        // Array to hold data
-        ArrayList<String> songinformation = new ArrayList<String>();
-
-        // Add song and artist names
-        songinformation.add(tempsong);
-        songinformation.add(tempart);
-
-        // Send the message
-        intent.putStringArrayListExtra(name,  songinformation);
-        LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
-    }
+//    private void sendMessage(String action, String name) {
+//        // Create a new main-activity intent
+//        Intent intent = new Intent(action);
+//
+//        // Array to hold data
+//        ArrayList<String> songinformation = new ArrayList<String>();
+//
+//        // Add song and artist names
+//        songinformation.add(tempsong);
+//        songinformation.add(tempart);
+//
+//        // Send the message
+//        intent.putStringArrayListExtra(name,  songinformation);
+//        LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
+//    }
 
     private void init() {
         // Find views
@@ -220,7 +221,7 @@ public class LibraryActivity extends AppCompatActivity {
         homebutton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                sendMessage("main-activity", "track-info");
+                //sendMessage("main-activity", "track-info");
                 Intent myIntent = new Intent(LibraryActivity.this, MainActivity.class);
                 LibraryActivity.this.startActivity(myIntent);
                 finish();
@@ -231,7 +232,7 @@ public class LibraryActivity extends AppCompatActivity {
         searchbutton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                sendMessage("main-activity", "track-info");
+                //sendMessage("main-activity", "track-info");
                 Intent myIntent = new Intent(LibraryActivity.this, SearchActivity.class);
                 LibraryActivity.this.startActivity(myIntent);
                 finish();
@@ -250,7 +251,7 @@ public class LibraryActivity extends AppCompatActivity {
         playingbutton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                sendMessage("main-activity", "track-info");
+                //sendMessage("main-activity", "track-info");
                 Intent myIntent = new Intent(LibraryActivity.this, PlayingActivity.class);
                 LibraryActivity.this.startActivity(myIntent);
                 finish();

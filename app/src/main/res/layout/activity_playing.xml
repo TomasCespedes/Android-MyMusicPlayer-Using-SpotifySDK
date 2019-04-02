@@ -17,8 +17,8 @@
         <!--Image view for Song picture -->
         <ImageView
             android:id="@+id/songPicture"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_width="400dp"
+            android:layout_height="400dp"
             android:background="@drawable/image_borders"/>
 
         <SeekBar

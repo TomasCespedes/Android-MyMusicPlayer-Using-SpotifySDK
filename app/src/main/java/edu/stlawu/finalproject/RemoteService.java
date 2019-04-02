@@ -137,8 +137,10 @@ public class RemoteService extends Service {
                     public void onEvent(PlayerState playerState) {
                         track = playerState.track;
 
-                        // Send song information to MainActivity when it starts
-                        main_sendMessage();
+                        // Send song information to MainActivity when it
+                        if (track != null) {
+                            main_sendMessage();
+                        }
                     }
                 }
         );
@@ -152,7 +154,6 @@ public class RemoteService extends Service {
 
         songinformation.add(track.name);
         songinformation.add(track.artist.name);
-        songinformation.add(track.imageUri.toString());
 
         intent.putStringArrayListExtra("track-info",  songinformation);
         LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
@@ -174,6 +175,7 @@ public class RemoteService extends Service {
     public void next() {
         mSpotifyAppRemote.getPlayerApi().skipNext();
         songstatustracker = true;
+
     }
 
     // Go to previous song
@@ -197,17 +199,6 @@ public class RemoteService extends Service {
     public void disconnect() {
         // Disconnect from app
         SpotifyAppRemote.disconnect(mSpotifyAppRemote);
-    }
-
-    public void setImageView(ImageUri trackuri, final ImageView song_iv) {
-        mSpotifyAppRemote.getImagesApi().getImage(trackuri)
-        .setResultCallback(new CallResult.ResultCallback<Bitmap>() {
-            @Override
-            public void onResult(Bitmap bitmap) {
-                Drawable d = new BitmapDrawable(getResources(), bitmap);
-                song_iv.setImageDrawable(d);
-            }
-        });
     }
 
     public CallResult<Bitmap> getImageBitmap() {

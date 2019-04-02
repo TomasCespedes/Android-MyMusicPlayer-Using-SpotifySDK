@@ -1,21 +1,24 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="edu.stlawu.finalproject">
+    package="edu.stlawu.finalproject"
+    >
 
     <uses-permission android:name="android.permission.INTERNET" />
 
     <application
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
-        android:label="@string/app_name"
+        android:label=""
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:theme="@style/AppTheme">
+        android:theme="@style/AppTheme"
+        >
 
         <!-- Main Activity -->
         <activity android:name=".MainActivity"
             android:alwaysRetainTaskState="true"
-            android:launchMode="singleInstance">
+            android:launchMode="singleInstance"
+            android:screenOrientation="portrait">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -30,18 +33,21 @@
         <activity android:name=".PlayingActivity"
             android:alwaysRetainTaskState="true"
             android:launchMode="singleInstance"
+            android:screenOrientation="portrait"
             />
 
         <!-- Search activity -->
         <activity android:name=".SearchActivity"
             android:alwaysRetainTaskState="true"
             android:launchMode="singleInstance"
+            android:screenOrientation="portrait"
             />
 
         <!-- Library Activity -->
         <activity android:name=".LibraryActivity"
             android:alwaysRetainTaskState="true"
             android:launchMode="singleInstance"
+            android:screenOrientation="portrait"
             />
 
         <service
