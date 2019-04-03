@@ -39,16 +39,8 @@ import retrofit.client.Response;
 
 public class MainActivity extends AppCompatActivity {
 
-    // Client ID and Redirect URI gotten from Spotify
-    private static final String CLIENT_ID = "377538ebcf9e4cdb9c4b5373e62a53a3";
-    private static final String REDIRECT_URI = "FinalProjectCS450://callback";
-
-    // Request code will be used to verify if result comes from the login activity. Can be set to any integer.
-    private static final int REQUEST_CODE = 1337;
-
     // App remote for Spotify to control song playback
     public static Track track;
-    private String accessToken;
 
     // TextViews
     public static TextView currentsong;
@@ -59,9 +51,10 @@ public class MainActivity extends AppCompatActivity {
     private ImageButton playpausebutton;
     private Button homebutton, searchbutton, librarybutton, playingbutton;
 
-
-    private SpotifyApi api = new SpotifyApi();
-    private SpotifyService spotifyWebService;
+    // Web API
+//    private String accessToken;
+//    private SpotifyApi api = new SpotifyApi();
+//    private SpotifyService spotifyWebService;
 
     // ServiceConnection
     RemoteService remoteService;
@@ -136,7 +129,7 @@ public class MainActivity extends AppCompatActivity {
         super.onStart();
 
         // Call the method to get the token
-        getToken();
+        //getToken();
 
         // Playing / Pause buttton listener on main page
         playpausebutton.setOnClickListener(new View.OnClickListener() {
@@ -205,100 +198,6 @@ public class MainActivity extends AppCompatActivity {
 
 
 
-    // Method to get the authentication token to be able
-    // to use the web API wrapped
-    private void getToken() {
-        AuthenticationRequest.Builder builder =
-                new AuthenticationRequest.Builder(CLIENT_ID, AuthenticationResponse.Type.TOKEN, REDIRECT_URI);
-
-        builder.setScopes(new String[]{"streaming"});
-        AuthenticationRequest request = builder.build();
-
-        AuthenticationClient.openLoginActivity(this, REQUEST_CODE, request);
-
-    }
-
-    /**
-     * onActivityResult from Login Activity.
-     * Used for getting authentication token to use Web API.
-     * @param requestCode
-     * @param resultCode
-     * @param intent
-     */
-
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
-        super.onActivityResult(requestCode, resultCode, intent);
-
-        // Check if result comes from the correct activity
-        if (requestCode == REQUEST_CODE) {
-            AuthenticationResponse response = AuthenticationClient.getResponse(resultCode, intent);
-
-            switch (response.getType()) {
-                // Response was successful and contains auth token
-                case TOKEN:
-                    // Handle successful response
-
-                    // Get the Access Token from the response
-                    accessToken = response.getAccessToken();
-
-                    // Set the Access token so we can use API
-                    api.setAccessToken(accessToken);
-                    spotifyWebService = api.getService();
-
-                    // Get "MY" playlists
-                    spotifyWebService.getMyPlaylists(new SpotifyCallback<Pager<PlaylistSimple>>() {
-                        // Request failed
-                        @Override
-                        public void failure(SpotifyError spotifyError) {
-                            Log.e("playlists", spotifyError.getMessage());
-                        }
-
-                        // Request was Successful
-                        @Override
-                        public void success(Pager<PlaylistSimple> playlistSimplePager, Response response) {
-                            // TODO Get Playlists and Show them on Main Page
-                            Log.e("Playlists", response.getReason());
-                            Log.e("Playlists", String.valueOf(playlistSimplePager.items.get(0).tracks));
-
-                            Log.e("References", playlistSimplePager.items.get(0).snapshot_id);
-
-
-
-                        }
-                    });
-
-                    // TODO For some reason mysavedtracks returns an error
-                    // TODO Insufficent Client Scope 403 is error
-//                    spotifyService.getMySavedTracks(new SpotifyCallback<Pager<SavedTrack>>() {
-//                        @Override
-//                        public void failure(SpotifyError spotifyError) {
-//                            Log.e("SpotifyErrorz", spotifyError.toString());
-//                        }
-//
-//                        @Override
-//                        public void success(Pager<SavedTrack> savedTrackPager, Response response) {
-//                            Log.e("Savedsongs", response.getReason());
-//                        }
-//                    });
-
-                    break;
-
-                // Auth flow returned an error
-                case ERROR:
-                    // Handle error response
-                    Log.e("SpotifyErrors", response.getError());
-                    break;
-
-                // Most likely auth flow was cancelled
-                default:
-                    // Handle other cases
-                    Log.e("SpotifyErrors", "WHY YOU CANCEL?");
-            }
-        }
-    }
-
-
     // App is stopped
     @Override
     protected void onStop() {
@@ -323,6 +222,7 @@ public class MainActivity extends AppCompatActivity {
 
         // Get all the Button views for the navigation menu at bottom
         homebutton = findViewById(R.id.homebtn);
+        homebutton.setEnabled(false);
         searchbutton = findViewById(R.id.searchbtn);
         librarybutton = findViewById(R.id.librarybtn);
         playingbutton = findViewById(R.id.playingbtn);

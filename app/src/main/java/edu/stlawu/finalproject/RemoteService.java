@@ -123,9 +123,6 @@ public class RemoteService extends Service {
         connected = true;
 
         subscribetoPlayerState();
-
-
-
     }
 
     // Subscribe to the player's state
@@ -203,9 +200,12 @@ public class RemoteService extends Service {
 
     public CallResult<Bitmap> getImageBitmap() {
         return mSpotifyAppRemote.getImagesApi().getImage(track.imageUri);
-
     }
 
 
+    public CallResult<Bitmap> getSpecificImageBitmap(Track track) {
+        return mSpotifyAppRemote.getImagesApi().getImage(track.imageUri);
+
+    }
 
 }

@@ -31,16 +31,17 @@
         <Button
             android:id="@+id/homebtn"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_height="50dp"
             android:layout_weight="1"
             android:text="Home"
+            android:state_pressed="false"
             android:background="@drawable/my_button_bg"
             android:textColor="#FFFFFF"/>
 
         <Button
             android:id="@+id/searchbtn"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_height="50dp"
             android:layout_weight="1"
             android:text="Search"
             android:background="@drawable/my_button_bg"
@@ -49,7 +50,7 @@
         <Button
             android:id="@+id/librarybtn"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_height="50dp"
             android:layout_weight="1"
             android:text="Library"
             android:background="@drawable/my_button_bg"
@@ -58,7 +59,7 @@
         <Button
             android:id="@+id/playingbtn"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_height="50dp"
             android:layout_weight="1"
             android:text="Playing"
             android:background="@drawable/my_button_bg"

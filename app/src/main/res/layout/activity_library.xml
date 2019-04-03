@@ -14,6 +14,30 @@
 
     </LinearLayout>
 
+    <HorizontalScrollView
+        android:id="@+id/hScrollView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:paddingTop="60dp"
+        >
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/users_playlists"
+            android:orientation="horizontal"
+            >
+        </LinearLayout>
+
+    </HorizontalScrollView>
+
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+    </LinearLayout>
+
+
 
     <!--Linear Layout for Current Song -->
 

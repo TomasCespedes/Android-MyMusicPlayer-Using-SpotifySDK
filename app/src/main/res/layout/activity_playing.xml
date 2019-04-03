@@ -35,7 +35,8 @@
             android:layout_gravity="center_horizontal"
             android:gravity="center_horizontal"
             android:text=""
-            android:textSize="40sp" />
+            android:textSize="40sp"
+            android:textColor="#FFFFFF"/>
 
 
         <!--Linear layout for Prev/current/Next buttons -->
