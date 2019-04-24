@@ -8,7 +8,9 @@ import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
+import android.os.Handler;
 import android.os.IBinder;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AppCompatActivity;
@@ -25,6 +27,8 @@ import android.widget.PopupMenu;
 import android.widget.TextView;
 
 import com.spotify.android.appremote.api.SpotifyAppRemote;
+import com.spotify.protocol.client.CallResult;
+import com.spotify.protocol.types.ImageUri;
 import com.spotify.sdk.android.authentication.AuthenticationClient;
 import com.spotify.sdk.android.authentication.AuthenticationRequest;
 import com.spotify.sdk.android.authentication.AuthenticationResponse;
@@ -330,7 +334,6 @@ public class LibraryActivity extends AppCompatActivity {
         }
     }
 
-
     private void init() {
         // Find views
         currentsong = findViewById(R.id.current_song2);
@@ -401,10 +404,16 @@ public class LibraryActivity extends AppCompatActivity {
             myButton.setText(myPlaylists.get(i).name);
             // Make button size 300x300
             myButton.setLayoutParams(new LinearLayout.LayoutParams(300, 300));
-//            Log.d("urls", myPlaylists.get(i).id);
+            Log.d("urls", myPlaylists.get(i).id);
+
+            // TODO set the image of each playlist
+            // TODO make playlist show up after clicked on
+            // TODO be able to play songs from each playlist
 
             // Add button to view
             myPlaylistsView.addView(myButton);
+
+
         }
     }
 
