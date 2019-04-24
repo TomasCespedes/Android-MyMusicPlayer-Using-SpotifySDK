@@ -16,7 +16,9 @@ import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.GestureDetector;
 import android.view.MenuInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Button;
 import android.widget.HorizontalScrollView;
@@ -56,6 +58,9 @@ public class LibraryActivity extends AppCompatActivity {
     // Buttons
     private ImageButton playpausebutton;
     private Button homebutton, searchbutton, librarybutton, playingbutton;
+
+    // GestorDetector for next/previous song
+    private GestureDetector nextPrevSong;
 
     // ImageViews
     private ImageView song_iv;
@@ -170,6 +175,31 @@ public class LibraryActivity extends AppCompatActivity {
        }
     }
         );
+
+        // Swipe left gesture to skip track
+        nextPrevSong = new GestureDetector(this, new GestureDetector.SimpleOnGestureListener(){
+            @Override
+            public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY)
+            {
+                // Next track if velX < 0 else previous track
+                if (velocityX < 0){
+                    remoteService.next();
+                } else {
+                    remoteService.previous();
+                }
+                return false;
+            }
+        });
+        currentsong.setOnTouchListener(new View.OnTouchListener()
+        {
+            @Override
+            public boolean onTouch(View v, MotionEvent event)
+            {
+                nextPrevSong.onTouchEvent(event);
+                return true;
+            }
+        });
+
     }
 
 
