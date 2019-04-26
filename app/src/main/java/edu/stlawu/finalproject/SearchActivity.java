@@ -20,6 +20,8 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.ScrollView;
 import android.widget.TextView;
 import com.spotify.sdk.android.authentication.AuthenticationClient;
 import com.spotify.sdk.android.authentication.AuthenticationRequest;
@@ -45,7 +47,11 @@ public class SearchActivity extends AppCompatActivity {
     // Request code will be used to verify if result comes from the login activity. Can be set to any integer.
     private static final int REQUEST_CODE = 1337;
 
+    // Search song variables
     public String songtosearch;
+    public ScrollView searchedsongs;
+    public List<Track> songquery;
+    public LinearLayout searchedsongs_view;
 
     // TextViews
     private TextView currentsong;
@@ -167,25 +173,48 @@ public class SearchActivity extends AppCompatActivity {
             public void onClick(View view) {
                 Log.d("MessageClick", mEdit.getText().toString());
                 songtosearch = mEdit.getText().toString();
+                searchedsongs_view.removeAllViews();
 
-                if (remoteService.connected) {
-                    new AsyncTask<Void, Void, Void>() {
+                if (songtosearch != "") {
+                    if (remoteService.connected) {
+                        new AsyncTask<Void, Void, Void>() {
+                            @Override
+                            protected Void doInBackground(Void... voids) {
+                                songquery = spotifyWebService.searchTracks(songtosearch).tracks.items;
 
-                        @Override
-                        protected Void doInBackground( Void... voids ) {
-                            List<Track> songquery = spotifyWebService.searchTracks(songtosearch).tracks.items;
-                            if (songquery.size() > 0) {
-                                Track tracktoplay = songquery.get(0);
+                                if (songquery.size() > 0) {
+                                    Track tracktoplay = songquery.get(0);
 
-                                if (tracktoplay != null) {
-                                    remoteService.play(tracktoplay.uri);
+                                    if (tracktoplay != null) {
+                                        //remoteService.play(tracktoplay.uri);
+                                    }
                                 }
+                                return null;
                             }
-                            return null;
-                        }
-                    }.execute();
+                        }.execute();
+                        if (songquery != null) {
+                            for (int i = 0; i < songquery.size() - 1; i++) {
+                                final Track trackcanplay = songquery.get(i);
+                                // New button
+                                Button myButton = new Button(SearchActivity.this);
+                                // Make button size 300x40
+                                myButton.setLayoutParams(new LinearLayout.LayoutParams(1000, 80));
+                                myButton.setText((trackcanplay.name + " By " + trackcanplay.artists.get(0).name));
 
+                                myButton.setOnClickListener(new View.OnClickListener() {
+                                    @Override
+                                    public void onClick(View v) {
+                                        remoteService.play(trackcanplay.uri);
+                                    }
+                                });
+
+                                searchedsongs_view.addView(myButton);
+                            }
+                        }
+
+                    }
                 }
+
                 mEdit.setText("");
             }
         });
@@ -346,8 +375,13 @@ public class SearchActivity extends AppCompatActivity {
         // Text edit input
         mEdit = findViewById(R.id.editText1);
 
+        // Vertical scroll view for all the searched songs
+        searchedsongs = findViewById(R.id.searched_songs);
+        searchedsongs_view = findViewById(R.id.scrollview_songs);
+
         // Button view for submitting a search
         songsearch_btn = findViewById(R.id.songsearch_button);
+
 
         // Find all the buttons for the bottom menu
         homebutton = findViewById(R.id.homebtn);

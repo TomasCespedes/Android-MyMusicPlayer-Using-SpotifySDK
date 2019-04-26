@@ -1,4 +1,5 @@
 <resources>
     <string name="app_name">FinalProject</string>
     <string name="no_song_playing">No Song Playing</string>
+    <string name="search">Search</string>
 </resources>
