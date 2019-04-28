@@ -1,21 +1,26 @@
 package edu.stlawu.finalproject;
 
 import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
+import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
+import android.os.Handler;
 import android.os.IBinder;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.GestureDetector;
+import android.view.Gravity;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
@@ -23,6 +28,8 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
+import android.widget.Toast;
+
 import com.spotify.sdk.android.authentication.AuthenticationClient;
 import com.spotify.sdk.android.authentication.AuthenticationRequest;
 import com.spotify.sdk.android.authentication.AuthenticationResponse;
@@ -37,6 +44,8 @@ import kaaes.spotify.webapi.android.models.Pager;
 import kaaes.spotify.webapi.android.models.SavedTrack;
 import kaaes.spotify.webapi.android.models.Track;
 import retrofit.client.Response;
+
+import static edu.stlawu.finalproject.R.drawable.buttonshape;
 
 
 public class SearchActivity extends AppCompatActivity {
@@ -171,51 +180,117 @@ public class SearchActivity extends AppCompatActivity {
         songsearch_btn.setOnClickListener(new View.OnClickListener() {
             @SuppressLint("StaticFieldLeak")
             public void onClick(View view) {
-                Log.d("MessageClick", mEdit.getText().toString());
+                try {
+                    InputMethodManager imm = (InputMethodManager)getSystemService(INPUT_METHOD_SERVICE);
+                    imm.hideSoftInputFromWindow(getCurrentFocus().getWindowToken(), 0);
+                } catch (Exception e) {
+                    // TODO: handle exception
+                }
+                // Get the text that the user submitted
                 songtosearch = mEdit.getText().toString();
+                // Remove all previous views from possible previous searches
                 searchedsongs_view.removeAllViews();
 
-                if (songtosearch != "") {
+                // If the input is not empty
+                if (songtosearch != null) {
+                    Log.d("Songtosearch", songtosearch);
+                    // Only do this if the service is already connected
                     if (remoteService.connected) {
+                        // Create a new AsyncTask to handle network request
                         new AsyncTask<Void, Void, Void>() {
                             @Override
                             protected Void doInBackground(Void... voids) {
-                                songquery = spotifyWebService.searchTracks(songtosearch).tracks.items;
+                                // Get all the results of the search
+                                try {
+                                    songquery = spotifyWebService.searchTracks(songtosearch).tracks.items;
+                                    // Song search was successful (Some results were found)
+                                    if (songquery.size() > 0) {
+                                        runOnUiThread(new Runnable() {
+                                            @Override
+                                            public void run() {
+                                                // Show a message saying results are being searched for
+                                                Toast toast=Toast.makeText(getApplicationContext(),"Searching for results.",Toast.LENGTH_SHORT);
+                                                // Center toast
+                                                toast.setGravity(Gravity.TOP|Gravity.LEFT,600,200);
+                                                toast.show();
+                                            }
+                                        });
 
-                                if (songquery.size() > 0) {
-                                    Track tracktoplay = songquery.get(0);
-
-                                    if (tracktoplay != null) {
-                                        //remoteService.play(tracktoplay.uri);
                                     }
+                                    // Song search was not successful (No results were found)
+                                    else {
+                                        // Must run toasts on a Main UI thread
+                                        runOnUiThread(new Runnable() {
+                                            @Override
+                                            public void run() {
+                                                // Show a message saying results not found
+                                                Toast toast = Toast.makeText(getApplicationContext(),"No songs found :(",Toast.LENGTH_SHORT);
+                                                // Center toast
+                                                toast.setGravity(Gravity.TOP|Gravity.LEFT,600,200);
+                                                toast.show();
+                                            }
+                                        });
+
+                                    }
+                                } catch (RuntimeException asnyctask) {
+                                    Log.d("Caught", "Exception caught on song query");
+                                    runOnUiThread(new Runnable() {
+                                        @Override
+                                        public void run() {
+                                            // Search was empty, send a message saying to input something valid
+                                            Toast toast=Toast.makeText(getApplicationContext(),"Please input text.",Toast.LENGTH_SHORT);
+                                            // Center toast
+                                            toast.setGravity(Gravity.TOP|Gravity.LEFT,600,200);
+                                            toast.show();
+                                        }
+                                    });
                                 }
+
                                 return null;
                             }
                         }.execute();
-                        if (songquery != null) {
-                            for (int i = 0; i < songquery.size() - 1; i++) {
-                                final Track trackcanplay = songquery.get(i);
-                                // New button
-                                Button myButton = new Button(SearchActivity.this);
-                                // Make button size 300x40
-                                myButton.setLayoutParams(new LinearLayout.LayoutParams(1000, 80));
-                                myButton.setText((trackcanplay.name + " By " + trackcanplay.artists.get(0).name));
 
-                                myButton.setOnClickListener(new View.OnClickListener() {
-                                    @Override
-                                    public void onClick(View v) {
-                                        remoteService.play(trackcanplay.uri);
+                        // Need to delay this because code above needs to get information
+                        // From the internet so it takes time
+                        final Handler handler = new Handler();
+                        handler.postDelayed(new Runnable() {
+                            @Override
+                            public void run() {
+                                // If the song search did not come back as empty
+                                if (songquery != null) {
+                                    // Loop through all the results
+                                    for (int i = 0; i < songquery.size() - 1; i++) {
+                                        // Get a track from the results
+                                        final Track trackcanplay = songquery.get(i);
+                                        // New button for that track
+                                        Button myButton = new Button(SearchActivity.this);
+                                        // Make button size 300x40
+                                        myButton.setLayoutParams(new LinearLayout.LayoutParams(1280, 110));
+                                        // Set background of button
+                                        myButton.setBackgroundResource(R.drawable.buttonshape);
+                                        // Set text of button to name and artist of song
+                                        myButton.setText((trackcanplay.name + " By " + trackcanplay.artists.get(0).name));
+                                        // If the button is clicked on, play the song that was chosen
+                                        myButton.setOnClickListener(new View.OnClickListener() {
+                                            @Override
+                                            public void onClick(View v) {
+                                                // Play song
+                                                remoteService.play(trackcanplay.uri);
+                                            }
+                                        });
+                                        // Add the button to the linear layout of the scrollview
+                                        searchedsongs_view.addView(myButton);
                                     }
-                                });
-
-                                searchedsongs_view.addView(myButton);
+                                }
                             }
-                        }
-
+                        }, 1000);
                     }
                 }
 
+                // Reset all fields for next search
                 mEdit.setText("");
+                songtosearch = "";
+                songquery = null;
             }
         });
 
@@ -242,7 +317,6 @@ public class SearchActivity extends AppCompatActivity {
                 return true;
             }
         });
-
     }
 
     @Override
