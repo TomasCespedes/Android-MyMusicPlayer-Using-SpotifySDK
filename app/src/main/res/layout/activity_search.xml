@@ -25,10 +25,12 @@
                 android:id="@+id/editText1"
                 android:layout_width="500dp"
                 android:layout_height="50dp"
-                android:background="#CCCCCC"
-                android:ems="15"
-                android:inputType="textAutoCorrect"
-                android:layout_gravity="center">
+                android:background="@drawable/searchbar"
+                android:ems="20"
+                android:inputType="text|textNoSuggestions"
+                android:layout_gravity="center"
+                android:gravity="center"
+                android:hint="@string/songname">
 
                 <requestFocus />
             </EditText>

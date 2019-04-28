@@ -176,6 +176,52 @@ public class SearchActivity extends AppCompatActivity {
         }
         });
 
+        // Swipe left gesture to skip track
+        nextPrevSong = new GestureDetector(this, new GestureDetector.SimpleOnGestureListener(){
+            @Override
+            public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY)
+            {
+                // Next track if velX < 0 else previous track
+                if (velocityX < 0){
+                    remoteService.next();
+                } else {
+                    remoteService.previous();
+                }
+                return false;
+            }
+        });
+        currentsong.setOnTouchListener(new View.OnTouchListener()
+        {
+            @Override
+            public boolean onTouch(View v, MotionEvent event)
+            {
+                nextPrevSong.onTouchEvent(event);
+                return true;
+            }
+        });
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+        // Check if service is bound already to not double call
+        // This could lead to a data leak
+        if (!service_isBound) {
+            // Binds the service so we can use
+            bindService(new Intent(this, RemoteService.class), serviceConnection, Context.BIND_AUTO_CREATE);
+            // Update boolean tracker
+            service_isBound = true;
+        }
+
+        // Register mMessageReceiver to receive messages.
+        // This is to send information from service.
+        if (!reciever_isbound) {
+            LocalBroadcastManager.getInstance(this).registerReceiver(mMessageReceiver,
+                    new IntentFilter("main-activity"));
+            reciever_isbound = true;
+        }
+
         // Button to submit a song search
         songsearch_btn.setOnClickListener(new View.OnClickListener() {
             @SuppressLint("StaticFieldLeak")
@@ -193,7 +239,6 @@ public class SearchActivity extends AppCompatActivity {
 
                 // If the input is not empty
                 if (songtosearch != null) {
-                    Log.d("Songtosearch", songtosearch);
                     // Only do this if the service is already connected
                     if (remoteService.connected) {
                         // Create a new AsyncTask to handle network request
@@ -289,56 +334,12 @@ public class SearchActivity extends AppCompatActivity {
 
                 // Reset all fields for next search
                 mEdit.setText("");
-                songtosearch = "";
+                songtosearch = null;
                 songquery = null;
             }
         });
 
-        // Swipe left gesture to skip track
-        nextPrevSong = new GestureDetector(this, new GestureDetector.SimpleOnGestureListener(){
-            @Override
-            public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY)
-            {
-                // Next track if velX < 0 else previous track
-                if (velocityX < 0){
-                    remoteService.next();
-                } else {
-                    remoteService.previous();
-                }
-                return false;
-            }
-        });
-        currentsong.setOnTouchListener(new View.OnTouchListener()
-        {
-            @Override
-            public boolean onTouch(View v, MotionEvent event)
-            {
-                nextPrevSong.onTouchEvent(event);
-                return true;
-            }
-        });
-    }
 
-    @Override
-    protected void onResume() {
-        super.onResume();
-
-        // Check if service is bound already to not double call
-        // This could lead to a data leak
-        if (!service_isBound) {
-            // Binds the service so we can use
-            bindService(new Intent(this, RemoteService.class), serviceConnection, Context.BIND_AUTO_CREATE);
-            // Update boolean tracker
-            service_isBound = true;
-        }
-
-        // Register mMessageReceiver to receive messages.
-        // This is to send information from service.
-        if (!reciever_isbound) {
-            LocalBroadcastManager.getInstance(this).registerReceiver(mMessageReceiver,
-                    new IntentFilter("main-activity"));
-            reciever_isbound = true;
-        }
     }
 
 
@@ -448,6 +449,7 @@ public class SearchActivity extends AppCompatActivity {
 
         // Text edit input
         mEdit = findViewById(R.id.editText1);
+        mEdit.setCursorVisible(false);
 
         // Vertical scroll view for all the searched songs
         searchedsongs = findViewById(R.id.searched_songs);
