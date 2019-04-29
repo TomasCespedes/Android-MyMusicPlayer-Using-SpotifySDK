@@ -58,7 +58,6 @@ public class SearchActivity extends AppCompatActivity {
 
     // Search song variables
     public String songtosearch;
-    public ScrollView searchedsongs;
     public List<Track> songquery;
     public LinearLayout searchedsongs_view;
 
@@ -452,7 +451,6 @@ public class SearchActivity extends AppCompatActivity {
         mEdit.setCursorVisible(false);
 
         // Vertical scroll view for all the searched songs
-        searchedsongs = findViewById(R.id.searched_songs);
         searchedsongs_view = findViewById(R.id.scrollview_songs);
 
         // Button view for submitting a search

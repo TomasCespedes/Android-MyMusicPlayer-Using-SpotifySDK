@@ -3,4 +3,5 @@
     <string name="no_song_playing">No Song Playing</string>
     <string name="search">Search</string>
     <string name="songname">Song Name</string>
+    <string name="liked_songs">Liked Songs</string>
 </resources>

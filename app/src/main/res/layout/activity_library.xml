@@ -14,28 +14,58 @@
 
     </LinearLayout>
 
-    <HorizontalScrollView
-        android:id="@+id/hScrollView"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:paddingTop="60dp"
-        >
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:id="@+id/users_playlists"
-            android:orientation="horizontal"
-            >
-        </LinearLayout>
-
-    </HorizontalScrollView>
-
-
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+
+        <!-- Horizontal View for User's Playlists -->
+        <HorizontalScrollView
+            android:id="@+id/hScrollView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingTop="60dp"
+            android:paddingRight="30dp"
+            android:paddingLeft="30dp"
+            android:paddingBottom="10dp"
+            android:fillViewport="true"
+            >
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/users_playlists"
+                android:orientation="horizontal"
+                >
+
+            </LinearLayout>
+
+        </HorizontalScrollView>
+
+        <!-- Vertical scroll view for liked songs -->
+        <ScrollView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/liked_songs"
+            android:layout_marginTop="2dp"
+            android:layout_marginBottom="2dp"
+            android:paddingTop="50dp"
+            android:paddingStart="60dp"
+            android:paddingBottom="120dp"
+            android:fillViewport="true">
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/scrollview_likedsongs"
+                android:orientation="vertical"
+                >
+
+            </LinearLayout>
+
+        </ScrollView>
 
     </LinearLayout>
+
+
 
 
 
