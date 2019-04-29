@@ -18,17 +18,13 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageButton;
-import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-
 import com.spotify.sdk.android.authentication.AuthenticationClient;
 import com.spotify.sdk.android.authentication.AuthenticationRequest;
 import com.spotify.sdk.android.authentication.AuthenticationResponse;
-
 import java.util.ArrayList;
 import java.util.List;
-
 import kaaes.spotify.webapi.android.SpotifyApi;
 import kaaes.spotify.webapi.android.SpotifyCallback;
 import kaaes.spotify.webapi.android.SpotifyError;
@@ -37,13 +33,11 @@ import kaaes.spotify.webapi.android.models.Pager;
 import kaaes.spotify.webapi.android.models.Playlist;
 import kaaes.spotify.webapi.android.models.PlaylistSimple;
 import kaaes.spotify.webapi.android.models.PlaylistTrack;
-import kaaes.spotify.webapi.android.models.PlaylistsPager;
 import kaaes.spotify.webapi.android.models.SavedTrack;
 import kaaes.spotify.webapi.android.models.Track;
 import retrofit.client.Response;
 
 public class LibraryActivity extends AppCompatActivity {
-
 
     // TextViews
     private TextView currentsong;
@@ -53,13 +47,10 @@ public class LibraryActivity extends AppCompatActivity {
 
     // Buttons
     private ImageButton playpausebutton;
-    private Button homebutton, searchbutton, librarybutton, playingbutton, likedsongs_button;
+    private Button homebutton, searchbutton, librarybutton, playingbutton;
 
     // GestorDetector for next/previous song
     private GestureDetector nextPrevSong;
-
-    // ImageViews
-    private ImageView song_iv;
 
     // ServiceConnection
     RemoteService remoteService;
@@ -104,7 +95,6 @@ public class LibraryActivity extends AppCompatActivity {
     public List<PlaylistSimple> myPlaylists;
     public LinearLayout myPlaylistsView;
 
-
     // handler for received Intents for the "my-event" event
     private BroadcastReceiver mMessageReceiver = new BroadcastReceiver() {
         @Override
@@ -140,7 +130,6 @@ public class LibraryActivity extends AppCompatActivity {
         // Update boolean tracker
         register_isBound = true;
     }
-
 
     @Override
     protected void onStart() {
@@ -191,7 +180,6 @@ public class LibraryActivity extends AppCompatActivity {
             }
         });
 
-
         currentsong.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
@@ -199,7 +187,6 @@ public class LibraryActivity extends AppCompatActivity {
                 return true;
             }
         });
-
 
     }
 
@@ -263,7 +250,9 @@ public class LibraryActivity extends AppCompatActivity {
 
         // Set the scopes so Web API can use all parameters
         builder.setScopes(new String[]{"streaming", "user-library-read", "playlist-read-private", "user-read-private"});
+        // Build request
         AuthenticationRequest request = builder.build();
+        // Open login activity
         AuthenticationClient.openLoginActivity(this, REQUEST_CODE, request);
 
     }
@@ -287,13 +276,13 @@ public class LibraryActivity extends AppCompatActivity {
                 // Response was successful and contains auth token
                 case TOKEN:
                     // Handle successful response
-
                     // Get the Access Token from the response
                     accessToken = response.getAccessToken();
                     Log.d("Token", accessToken);
 
                     // Set the Access token so we can use API
                     api.setAccessToken(accessToken);
+                    // Get the Web API service
                     spotifyWebService = api.getService();
 
                     // Get user's playlists
@@ -309,28 +298,26 @@ public class LibraryActivity extends AppCompatActivity {
                         public void success(Pager<PlaylistSimple> playlistSimplePager, Response response) {
                             // Save the user's playlists
                             myPlaylists = playlistSimplePager.items;
+                            // Initialize all playlists with this result
                             init_playlists();
                         }
                     });
 
                     // Get users liked songs
                     spotifyWebService.getMySavedTracks(new SpotifyCallback<Pager<SavedTrack>>() {
+                        // Request failed (Most likely due to authentication limits)
                         @Override
                         public void failure(SpotifyError spotifyError) {
                             Log.d("Song_Error", spotifyError.getMessage());
                         }
 
+                        // Request was successful
                         @Override
                         public void success(Pager<SavedTrack> savedTrackPager, Response response) {
                             Log.d("User_Songs", savedTrackPager.items.toString());
                             likedsongs = savedTrackPager.items;
-
-
-
                         }
                     });
-
-
                     break;
 
                 // Auth flow returned an error
@@ -347,12 +334,12 @@ public class LibraryActivity extends AppCompatActivity {
         }
     }
 
+    // Initialize all the views and permanent buttons
     private void init() {
         // Find views
         currentsong = findViewById(R.id.current_song2);
         currentsong.setSelected(true);
         playpausebutton = findViewById(R.id.current_button);
-        song_iv = findViewById(R.id.song_iv);
 
         // Find all the buttons for the bottom menu
         homebutton = findViewById(R.id.homebtn);
@@ -363,15 +350,11 @@ public class LibraryActivity extends AppCompatActivity {
         // Scroll View for portraying songs within each playlist
         songs_view = findViewById(R.id.scrollview_likedsongs);
 
-
-        /**
-         * Buttons for bottom menu to create new activities
-         */
+        //Buttons for bottom menu to create new activities
         // Home button to create a new activity
         homebutton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                //sendMessage("main-activity", "track-info");
                 Intent myIntent = new Intent(LibraryActivity.this, MainActivity.class);
                 LibraryActivity.this.startActivity(myIntent);
                 finish();
@@ -382,7 +365,6 @@ public class LibraryActivity extends AppCompatActivity {
         searchbutton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                //sendMessage("main-activity", "track-info");
                 Intent myIntent = new Intent(LibraryActivity.this, SearchActivity.class);
                 LibraryActivity.this.startActivity(myIntent);
                 finish();
@@ -401,7 +383,6 @@ public class LibraryActivity extends AppCompatActivity {
         playingbutton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                //sendMessage("main-activity", "track-info");
                 Intent myIntent = new Intent(LibraryActivity.this, PlayingActivity.class);
                 LibraryActivity.this.startActivity(myIntent);
                 finish();
@@ -409,7 +390,7 @@ public class LibraryActivity extends AppCompatActivity {
         });
     }
 
-
+    // Initialize all the playlists and their songs
     private void init_playlists() {
         // Find playlist view
         myPlaylistsView = findViewById(R.id.users_playlists);
@@ -418,7 +399,9 @@ public class LibraryActivity extends AppCompatActivity {
         Button likedsongs_button = new Button(LibraryActivity.this);
         // Make button size 300x300
         likedsongs_button.setLayoutParams(new LinearLayout.LayoutParams(300, 300));
+        // Set text of playlist to Liked Songs
         likedsongs_button.setText("Liked Songs");
+        // Add new button to the playlists view
         myPlaylistsView.addView(likedsongs_button);
 
         // User clicks liked Songs button
@@ -456,26 +439,30 @@ public class LibraryActivity extends AppCompatActivity {
         // Dynamically add buttons for each playlist
         for (int i = 0; i <= myPlaylists.size() - 1; i++) {
             final PlaylistSimple currentplaylist = myPlaylists.get(i);
-            // New button
+            // New button for each playlist
             Button myButton = new Button (this);
             // Set name of playlist to new button
             myButton.setText(currentplaylist.name);
             // Make button size 300x300
             myButton.setLayoutParams(new LinearLayout.LayoutParams(300, 300));
 
-            // TODO: When button is clicked for playlist, show all songs within the playlist
+            // When a playlist button is clicked, show all songs within playlist
             myButton.setOnClickListener(new View.OnClickListener() {
                 @SuppressLint("StaticFieldLeak")
                 @Override
                 public void onClick(View v) {
+                    // Remove all views previously there
                     songs_view.removeAllViews();
 
+                    // Start a new Asynctask because we need to find playlist online
                     new AsyncTask<Void, Void, Void>() {
                         @Override
                         protected Void doInBackground(Void... voids) {
-                            // Get all the results of the search
+                            // Get the playlist (Async required for this)
                             Playlist quickplaylist = spotifyWebService.getPlaylist(currentplaylist.href, currentplaylist.id);
+                            // Get the songs within the playlist
                             List<PlaylistTrack> actualplaylist = quickplaylist.tracks.items;
+                            // Go through every song
                             for (int j = 0; j < actualplaylist.size() - 1; j++) {
                                 // Get a track from the results
                                 final Track trackcanplay = actualplaylist.get(j).track;
@@ -495,6 +482,8 @@ public class LibraryActivity extends AppCompatActivity {
                                         remoteService.play(trackcanplay.uri);
                                     }
                                 });
+                                // Must create a new UI thread runnable because
+                                // we are inside the async task
                                 runOnUiThread(new Runnable() {
                                     @Override
                                     public void run() {
@@ -502,29 +491,17 @@ public class LibraryActivity extends AppCompatActivity {
                                         songs_view.addView(myButton);
                                     }
                                 });
-
-
-
                             }
                             return null;
                         }
                     }.execute();
-
                 }
-
             });
-
-            // TODO set the image of each playlist
-            // TODO make playlist show up after clicked on
-            // TODO be able to play songs from each playlist
 
             // Add button to view
             myPlaylistsView.addView(myButton);
 
-
         }
     }
-
-
 
 }
