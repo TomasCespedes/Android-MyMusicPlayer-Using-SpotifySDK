@@ -9,7 +9,7 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="@drawable/my_app_bg"
+        android:background="@drawable/brain"
         android:gravity="center"
         android:orientation="vertical">
 
@@ -36,7 +36,7 @@
             android:gravity="center_horizontal"
             android:text=""
             android:textSize="40sp"
-            android:textColor="#FFFFFF"/>
+            android:textColor="#11ff00"/>
 
 
         <!--Linear layout for Prev/current/Next buttons -->
@@ -63,7 +63,7 @@
                 android:maxWidth="110dp"
                 android:background="@android:color/transparent"
                 android:scaleType="fitCenter"
-                android:src="@drawable/pausebutton" />
+                android:src="@drawable/pausebutton2" />
 
             <!-- Next Song Button -->
             <ImageButton

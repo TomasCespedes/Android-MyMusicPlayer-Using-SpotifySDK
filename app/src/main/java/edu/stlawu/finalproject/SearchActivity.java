@@ -18,6 +18,7 @@ import android.view.GestureDetector;
 import android.view.Gravity;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
@@ -130,6 +131,8 @@ public class SearchActivity extends AppCompatActivity {
                 new IntentFilter("main-activity"));
         // Update boolean tracker
         reciever_isbound = true;
+
+        this.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN);
 
 
     }

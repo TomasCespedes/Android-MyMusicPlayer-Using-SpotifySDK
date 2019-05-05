@@ -202,10 +202,8 @@ public class RemoteService extends Service {
         return mSpotifyAppRemote.getImagesApi().getImage(track.imageUri);
     }
 
-
-    public CallResult<Bitmap> getSpecificImageBitmap(Track track) {
-        return mSpotifyAppRemote.getImagesApi().getImage(track.imageUri);
-
+    public void like() {
+        mSpotifyAppRemote.getUserApi().addToLibrary(track.uri);
     }
 
 }

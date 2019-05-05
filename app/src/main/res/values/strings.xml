@@ -2,6 +2,9 @@
     <string name="app_name">FinalProject</string>
     <string name="no_song_playing">No Song Playing</string>
     <string name="search">Search</string>
-    <string name="songname">Song Name</string>
+    <string name="songname">Enter Search Request</string>
     <string name="liked_songs">Liked Songs</string>
+    <string name="my_playlists"><u>My Playlists</u></string>
+    <string name="welcome_msg">Welcome!</string>
+    <string name="spotify_msg">App powered by Spotify.</string>
 </resources>

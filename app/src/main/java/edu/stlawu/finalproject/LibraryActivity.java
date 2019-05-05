@@ -7,6 +7,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
+import android.graphics.Color;
 import android.os.AsyncTask;
 import android.os.IBinder;
 import android.support.v4.content.LocalBroadcastManager;
@@ -14,6 +15,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.GestureDetector;
+import android.view.Gravity;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Button;
@@ -25,6 +27,8 @@ import com.spotify.sdk.android.authentication.AuthenticationRequest;
 import com.spotify.sdk.android.authentication.AuthenticationResponse;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+
 import kaaes.spotify.webapi.android.SpotifyApi;
 import kaaes.spotify.webapi.android.SpotifyCallback;
 import kaaes.spotify.webapi.android.SpotifyError;
@@ -33,6 +37,7 @@ import kaaes.spotify.webapi.android.models.Pager;
 import kaaes.spotify.webapi.android.models.Playlist;
 import kaaes.spotify.webapi.android.models.PlaylistSimple;
 import kaaes.spotify.webapi.android.models.PlaylistTrack;
+import kaaes.spotify.webapi.android.models.Recommendations;
 import kaaes.spotify.webapi.android.models.SavedTrack;
 import kaaes.spotify.webapi.android.models.Track;
 import retrofit.client.Response;
@@ -129,6 +134,8 @@ public class LibraryActivity extends AppCompatActivity {
                 new IntentFilter("main-activity"));
         // Update boolean tracker
         register_isBound = true;
+
+
     }
 
     @Override
@@ -318,6 +325,11 @@ public class LibraryActivity extends AppCompatActivity {
                             likedsongs = savedTrackPager.items;
                         }
                     });
+
+                    // Get users recommended songs
+
+
+
                     break;
 
                 // Auth flow returned an error
@@ -398,11 +410,22 @@ public class LibraryActivity extends AppCompatActivity {
         // Create a new button for liked songs for playlist view
         Button likedsongs_button = new Button(LibraryActivity.this);
         // Make button size 300x300
-        likedsongs_button.setLayoutParams(new LinearLayout.LayoutParams(300, 300));
+        likedsongs_button.setLayoutParams(new LinearLayout.LayoutParams(325, 225));
         // Set text of playlist to Liked Songs
         likedsongs_button.setText("Liked Songs");
+        likedsongs_button.setBackgroundResource(R.drawable.circle);
+        likedsongs_button.setMinLines(2);
         // Add new button to the playlists view
         myPlaylistsView.addView(likedsongs_button);
+
+        Button recommendedsongs_button = new Button(LibraryActivity.this);
+        recommendedsongs_button.setLayoutParams(new LinearLayout.LayoutParams(325, 225));
+        // Set text of playlist to Liked Songs
+        recommendedsongs_button.setText(("Recommended"));
+        recommendedsongs_button.setBackgroundResource(R.drawable.circle);
+        recommendedsongs_button.setMinLines(2);
+
+
 
         // User clicks liked Songs button
         // Hard-coded because everyone has a liked songs "playlist"
@@ -443,9 +466,10 @@ public class LibraryActivity extends AppCompatActivity {
             Button myButton = new Button (this);
             // Set name of playlist to new button
             myButton.setText(currentplaylist.name);
-            // Make button size 300x300
-            myButton.setLayoutParams(new LinearLayout.LayoutParams(300, 300));
-
+            // Make button size 250x250
+            myButton.setLayoutParams(new LinearLayout.LayoutParams(325, 225));
+            myButton.setBackgroundResource(R.drawable.circle);
+            myButton.setMinLines(2);
             // When a playlist button is clicked, show all songs within playlist
             myButton.setOnClickListener(new View.OnClickListener() {
                 @SuppressLint("StaticFieldLeak")

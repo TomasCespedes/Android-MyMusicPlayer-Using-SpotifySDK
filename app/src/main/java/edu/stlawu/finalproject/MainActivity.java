@@ -1,15 +1,15 @@
 package edu.stlawu.finalproject;
 
 import com.spotify.protocol.types.Track;
-import com.spotify.sdk.android.authentication.AuthenticationClient;
-import com.spotify.sdk.android.authentication.AuthenticationRequest;
-import com.spotify.sdk.android.authentication.AuthenticationResponse;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
+import android.media.MediaPlayer;
+import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.IBinder;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AppCompatActivity;
@@ -20,19 +20,11 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageButton;
-import android.widget.ImageView;
+import android.widget.MediaController;
 import android.widget.TextView;
+import android.widget.VideoView;
 
 import java.util.ArrayList;
-
-import kaaes.spotify.webapi.android.SpotifyApi;
-import kaaes.spotify.webapi.android.SpotifyCallback;
-import kaaes.spotify.webapi.android.SpotifyError;
-import kaaes.spotify.webapi.android.SpotifyService;
-import kaaes.spotify.webapi.android.models.Pager;
-import kaaes.spotify.webapi.android.models.PlaylistSimple;
-import retrofit.client.Response;
-
 
 /**
  * Source to set up the code to connect to Spotify
@@ -44,24 +36,26 @@ public class MainActivity extends AppCompatActivity {
     // App remote for Spotify to control song playback
     public static Track track;
 
+    // Videoview
+    VideoView bgVideo;
+
     // TextViews
     public static TextView currentsong;
 
-    public ImageView song_iv;
-
-    // Buttons
+    // Playing/Pausing Button
     private ImageButton playpausebutton;
+    // Bottom nav buttons
     private Button homebutton, searchbutton, librarybutton, playingbutton;
 
     // GestorDetector for next/previous song
     private GestureDetector nextPrevSong;
 
-    // Web API
+    // Web API variables
 //    private String accessToken;
 //    private SpotifyApi api = new SpotifyApi();
 //    private SpotifyService spotifyWebService;
 
-    // ServiceConnection
+    // ServiceConnection variables
     RemoteService remoteService;
     boolean service_isBound = false;
     boolean reciever_isbound = false;
@@ -76,14 +70,20 @@ public class MainActivity extends AppCompatActivity {
         // Service successfully connected
         @Override
         public void onServiceConnected(ComponentName name, IBinder service) {
+
+            // Bind the remote service
             RemoteService.MyBinder binder = (RemoteService.MyBinder) service;
+            // Get the remote service
             remoteService = binder.getService();
+            // Set bound to true
             service_isBound = true;
+
         }
 
         // Service was disconnected
         @Override
         public void onServiceDisconnected(ComponentName name) {
+            // Set all values accordingly
             remoteService = null;
             service_isBound = false;
         }
@@ -95,9 +95,10 @@ public class MainActivity extends AppCompatActivity {
         public void onReceive(Context context, Intent intent) {
             // Extract data included in the Intent
             ArrayList<String> message = intent.getStringArrayListExtra("track-info");
+            // Log the message
             Log.d("receiver", "Got message: " + message);
 
-            // Save the song information
+            // Save the song information (name and artist)
             tempsong = message.get(0);
             tempart = message.get(1);
 
@@ -138,8 +139,8 @@ public class MainActivity extends AppCompatActivity {
 
         // Playing / Pause buttton listener on main page
         playpausebutton.setOnClickListener(new View.OnClickListener() {
-                   @Override
-                   public void onClick(View v) {
+           @Override
+           public void onClick(View v) {
                // Song is playing, so pause it
                if (remoteService.songstatus()) {
                    // Pause song through remote
@@ -158,9 +159,8 @@ public class MainActivity extends AppCompatActivity {
                    // Change the tracker to true
                    remoteService.songstatustracker = true;
                }
-               }
            }
-        );
+        });
 
         // Swipe left gesture to skip track
         nextPrevSong = new GestureDetector(this, new GestureDetector.SimpleOnGestureListener(){
@@ -168,14 +168,19 @@ public class MainActivity extends AppCompatActivity {
             public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY)
             {
                 // Next track if velX < 0 else previous track
+                // User swiped from left to right
                 if (velocityX < 0){
                     remoteService.next();
-                } else {
+                }
+                // User swiped from right to left
+                else {
                     remoteService.previous();
                 }
                 return false;
             }
         });
+
+        // Set the onTouchListener for the current song
         currentsong.setOnTouchListener(new View.OnTouchListener()
         {
             @Override
@@ -209,6 +214,8 @@ public class MainActivity extends AppCompatActivity {
                     new IntentFilter("main-activity"));
             reciever_isbound = true;
         }
+
+
     }
 
     // If activity is paused
@@ -224,9 +231,8 @@ public class MainActivity extends AppCompatActivity {
         LocalBroadcastManager.getInstance(this).unregisterReceiver(mMessageReceiver);
         // update register boolean to false
         reciever_isbound = false;
+
     }
-
-
 
     // App is stopped
     @Override
@@ -235,6 +241,7 @@ public class MainActivity extends AppCompatActivity {
 
         // Disconnect from app
         remoteService.disconnect();
+
     }
 
     // Initialize all the views and anything else we need
@@ -246,13 +253,8 @@ public class MainActivity extends AppCompatActivity {
         currentsong.setSelected(true);
         playpausebutton = findViewById(R.id.current_button);
 
-        // Get rid of this and it's variables
-        song_iv = findViewById(R.id.song_iv);
-
-
         // Get all the Button views for the navigation menu at bottom
         homebutton = findViewById(R.id.homebtn);
-        homebutton.setEnabled(false);
         searchbutton = findViewById(R.id.searchbtn);
         librarybutton = findViewById(R.id.librarybtn);
         playingbutton = findViewById(R.id.playingbtn);
@@ -265,12 +267,10 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        // TODO 1
         // Search button switch activity
         searchbutton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                //sendMessage("main-activity", "track-info");
                 Intent myIntent = new Intent(MainActivity.this, SearchActivity.class);
                 MainActivity.this.startActivity(myIntent);
                 finish();
@@ -281,7 +281,6 @@ public class MainActivity extends AppCompatActivity {
         librarybutton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                //sendMessage("main-activity", "track-info");
                 Intent myIntent = new Intent(MainActivity.this, LibraryActivity.class);
                 MainActivity.this.startActivity(myIntent);
                 finish();
@@ -292,25 +291,11 @@ public class MainActivity extends AppCompatActivity {
         playingbutton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                //sendMessage("main-activity", "track-info");
                 Intent myIntent = new Intent(MainActivity.this, PlayingActivity.class);
                 MainActivity.this.startActivity(myIntent);
                 finish();
             }
         });
     }
-
-    // Old send message function
-    // Send a message to the playing activity
-//    private void sendMessage(String action, String name) {
-//        Intent intent = new Intent(action);
-//        // add data
-//        ArrayList<String> songinformation = new ArrayList<String>();
-//        songinformation.add(remoteService.track.name);
-//        songinformation.add(remoteService.track.artist.name);
-//
-//        intent.putStringArrayListExtra(name,  songinformation);
-//        LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
-//    }
 }
 

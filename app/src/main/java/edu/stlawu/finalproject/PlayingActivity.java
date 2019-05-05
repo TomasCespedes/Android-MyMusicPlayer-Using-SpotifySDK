@@ -1,8 +1,10 @@
 package edu.stlawu.finalproject;
 
+import android.app.AlertDialog;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
@@ -21,6 +23,7 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.SeekBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.spotify.protocol.client.CallResult;
 
@@ -85,6 +88,24 @@ public class PlayingActivity extends AppCompatActivity {
                 public void onResult(Bitmap bitmap) {
                     Drawable d = new BitmapDrawable(getResources(), bitmap);
                     song_iv.setImageDrawable(d);
+
+                    song_iv.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+
+                            new AlertDialog.Builder(PlayingActivity.this)
+                                    .setMessage("Like This Song?")
+                                    .setIcon(android.R.drawable.ic_dialog_info)
+                                    .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+
+                                        public void onClick(DialogInterface dialog, int whichButton) {
+                                            Toast.makeText(PlayingActivity.this, "Song Liked!", Toast.LENGTH_SHORT).show();
+                                            remoteService.like();
+                                        }})
+                                    .setNegativeButton(android.R.string.no, null).show();
+
+                        }
+                    });
 
 
                 }
@@ -285,33 +306,14 @@ public class PlayingActivity extends AppCompatActivity {
                 // Song is playing, so pause it
                 if (remoteService.songstatus()) {
                     remoteService.pause();
-                    playpausebutton.setImageResource(R.drawable.playbutton);
+                    playpausebutton.setImageResource(R.drawable.playbutton2);
                 }
                 // Song is paused, so resume it
                 else if (!remoteService.songstatus()) {
                     remoteService.resume();
-                    playpausebutton.setImageResource(R.drawable.pausebutton);
+                    playpausebutton.setImageResource(R.drawable.pausebutton2);
                 }
             }
         });
     }
-
-    // Old send message function
-    // Send message to the main-activity
-//    private void sendMessage(String action, String name) {
-//        // Create a new main-activity intent
-//        Intent intent = new Intent(action);
-//
-//        // Array to hold data
-//        ArrayList<String> songinformation = new ArrayList<String>();
-//
-//        // Add song and artist names
-//        songinformation.add(tempsong);
-//        songinformation.add(tempart);
-//
-//        // Send the message
-//        intent.putStringArrayListExtra(name,  songinformation);
-//        LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
-//    }
-
 }
