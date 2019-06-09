@@ -1,4 +1,4 @@
-# FinalProjectCS450
+# Android Spotify SDK Application
 
 ## Intro
 Spotify has a Software Development Kit which allows developers to utilize it to gain access to Spotify's database of songs, artists, playlists, etc... as well as control playback features. We (group of three St. Lawrence University students) have decided to implement our own version of Spotify that is much more simplistic. In order to utilize this app, the user must add their SHA1 key for the Android S2 tablet onto the developer database website that Spotify has (https://developer.spotify.com/dashboard/applications). Spotify's SDK gives us access to the songs but since there is not much work done for the Android Version in order to obtain information about playlists and authors. In order to get around this, we used the Kaees Web API Wrapper library (https://github.com/kaaes/spotify-web-api-android) to make web requests to Spotify's Web Version so that we can obtain the information. 
